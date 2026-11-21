@@ -60,6 +60,7 @@ h2{font-size:20px;margin:44px 0 6px}
 .facts{font-size:14px;color:var(--muted)}
 .facts code,.mono{font-family:"JetBrains Mono",monospace;font-size:13px;word-break:break-all}
 a{color:var(--a)}
+.cta{display:inline-block;margin-top:18px;background:var(--wet);color:#fff;font-weight:600;padding:11px 16px;border-radius:10px;text-decoration:none}
 footer{padding:40px 0 60px;color:var(--muted);font-size:13px}
 #err{color:var(--dis)}
 @media (max-width:560px){.bar{grid-template-columns:90px 1fr 60px}}
@@ -71,6 +72,7 @@ footer{padding:40px 0 60px;color:var(--muted);font-size:13px}
   <div class="tag">Ethereum Sepolia testnet · live from the chain</div>
   <h1>SecondSky <span>— rain cover that asks two skies</span></h1>
   <p class="lede">Cover for one day that has to stay dry: a harvest, a spray run, a concrete pour. When the day is over, the contract buys that day's recorded rainfall from Telegraph twice, from two independent sources. It pays only when both agree it rained, and refuses to decide alone when they don't.</p>
+  <p><a class="cta" href="/buy.html">Buy cover, or replay a past day →</a></p>
   <div class="how">
     <div><b>Source A · OathCast</b>Open-Meteo archive, Telegraph miner <span class="mono" id="srcA">5130</span></div>
     <div><b>Source B · SecondSky NASA</b>NASA POWER satellite + reanalysis, Telegraph miner <span class="mono" id="srcB">6151</span></div>
@@ -134,6 +136,10 @@ const usd = (v) => Number(formatUnits(v, 6)).toLocaleString(undefined, { maximum
 const esc = (s) => String(s).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 $("cAddr").textContent = ADDR; $("cAddr").href = `${ES}/address/${ADDR}`;
 
+function placeName(loc) {
+  const m = String(loc).match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+  return m ? `<a href="https://www.openstreetmap.org/?mlat=${m[1]}&mlon=${m[2]}#map=9/${m[1]}/${m[2]}" target="_blank" rel="noopener">${esc(loc)}</a>` : esc(loc);
+}
 function unpack(v) {
   if (!(v >> 255n)) return { state: "waiting" };
   if (!((v >> 254n) & 1n)) return { state: "failed" };
@@ -200,7 +206,7 @@ async function load() {
   const link = (label, h) => h ? `<a href="${ES}/tx/${h}" target="_blank" rel="noopener">${label}</a>` : "";
   $("policies").innerHTML = rows.reverse().map((r) => `
     <div class="pol">
-      <div class="top"><div><span class="place">#${r.id} · ${esc(r.p.location)}</span> <span class="meta">${esc(r.p.date)} · pays ${usd(r.p.payout)} USDC if rain ≥ ${r.lim} mm · premium ${usd(r.p.premium)} USDC</span></div>
+      <div class="top"><div><span class="place">#${r.id} · ${placeName(r.p.location)}</span> <span class="meta">${esc(r.p.date)} · pays ${usd(r.p.payout)} USDC if rain ≥ ${r.lim} mm · premium ${usd(r.p.premium)} USDC</span></div>
       <span class="badge b-${r.st}">${LABEL[r.st] || r.st}</span></div>
       <div class="bars">${bar("A · Open-Meteo", "var(--a)", r.a, r.lim)}${bar("B · NASA POWER", "var(--b)", r.b, r.lim)}</div>
       <div class="why">${why(r)}</div>

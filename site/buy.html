@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SecondSky — buy cover</title>
+<meta name="description" content="Buy a day of rain cover on Sepolia testnet, or replay a past day and watch the contract settle it from two Telegraph sources.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--ink:#15201b;--muted:#5d6a63;--line:#e2e6e1;--accent:#1f6f4a;--accent-ink:#fff;--a:#2f6fd0;--b:#d07a1f;--dis:#c0392b;--chip:#eef1ec;--wait:#a37b00}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1512;--card:#161e1a;--ink:#e7ede9;--muted:#97a59d;--line:#26322c;--accent:#3fbf86;--accent-ink:#06130c;--a:#6ea2f0;--b:#f0a050;--dis:#ef6b5b;--chip:#1e2823;--wait:#e0b12e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 60px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
+nav a{color:var(--ink);text-decoration:none;font-weight:600}
+nav .back{font-weight:400;color:var(--muted);font-size:14px}
+h1{font-size:clamp(28px,5vw,38px);margin:12px 0 8px;letter-spacing:-.02em}
+.lede{color:var(--muted);margin:0 0 24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.step{font:500 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+input,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.row{grid-template-columns:1fr}}
+button{font:600 15px Inter;padding:11px 16px;border-radius:10px;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;margin-top:14px}
+button.ghost{background:var(--chip);color:var(--ink)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.mono{font-family:"JetBrains Mono",monospace;font-size:13px;word-break:break-all}
+.sugg{border:1px solid var(--line);border-radius:10px;margin-top:4px;overflow:hidden}
+.sugg div{padding:8px 12px;cursor:pointer;font-size:14px;background:var(--card)}
+.sugg div:hover{background:var(--chip)}
+.tabs{display:flex;gap:8px;margin-bottom:4px}
+.tabs button{margin:0;background:var(--chip);color:var(--ink);font-weight:500}
+.tabs button.on{background:var(--accent);color:var(--accent-ink)}
+.price{font-size:34px;font-weight:700}
+.log{font-size:14px}
+.log div{padding:6px 0;border-bottom:1px dashed var(--line)}
+.log a{color:var(--a)}
+.err{color:var(--dis);font-size:14px;margin-top:8px}
+.bars{display:grid;gap:8px;margin-top:10px}
+.bar{display:grid;grid-template-columns:120px 1fr 80px;gap:10px;align-items:center;font-size:13px}
+.track{height:12px;background:var(--chip);border-radius:6px;position:relative}
+.fill{height:100%;border-radius:6px}
+.limit{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.note{border-left:4px solid var(--wait);padding:10px 14px;background:var(--card);border-radius:8px;font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><a href="/">SecondSky</a><a class="back" href="/">← all policies and numbers</a></nav>
+<h1>Cover a day against rain</h1>
+<p class="lede">Pick a place, a day and how much rain would ruin it. If both independent sources record at least that much, the contract pays you. Sepolia testnet, test USDC only.</p>
+
+<div class="card">
+  <div class="step">1 · Wallet</div>
+  <div id="wallet">You need a browser wallet (MetaMask, Rabby…) with a little Sepolia ETH for gas.</div>
+  <button id="connect">Connect wallet</button>
+  <button id="mint" class="ghost" hidden>Get 50 test USDC</button>
+  <div class="hint">No Sepolia ETH? Use a free faucet, e.g. <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">Google's</a>.</div>
+</div>
+
+<div class="card">
+  <div class="step">2 · What to cover</div>
+  <div class="tabs"><button id="tCover" class="on">A future day</button><button id="tReplay">Replay a past day</button></div>
+  <div class="hint" id="modeHint">Real cover: for a day 1–90 days ahead. Settles about 6 days after the day, because NASA publishes late.</div>
+  <label for="place">Place</label>
+  <input id="place" placeholder="Type a town or city, e.g. Lagos" autocomplete="off">
+  <div id="sugg" class="sugg" hidden></div>
+  <div class="hint" id="picked"></div>
+  <div class="row">
+    <div><label for="date">Day</label><input id="date" type="date"></div>
+    <div><label for="limit">Pay if rain is at least (mm)</label><input id="limit" type="number" min="1" max="100" step="0.5" value="10"></div>
+  </div>
+  <label for="payout">Payout (USDC)</label>
+  <input id="payout" type="number" min="1" max="50" step="1" value="20">
+  <button id="quote">Get a price</button>
+  <div class="err" id="qerr"></div>
+</div>
+
+<div class="card" id="qcard" hidden>
+  <div class="step">3 · Price</div>
+  <div class="price" id="premium"></div>
+  <div id="qtext" class="hint"></div>
+  <div class="hint mono" id="qloc"></div>
+  <button id="buy">Approve and buy</button>
+  <div class="err" id="berr"></div>
+</div>
+
+<div class="card" id="pcard" hidden>
+  <div class="step">4 · Your policy</div>
+  <div id="ptitle" style="font-weight:600"></div>
+  <div class="bars" id="pbars"></div>
+  <div class="log" id="log"></div>
+  <button id="settle" hidden>Settle now: buy both answers from Telegraph</button>
+  <button id="finalize" hidden>Finalize</button>
+  <div class="err" id="perr"></div>
+</div>
+
+<p class="note">The price comes from 10 years of rain history at that spot. The underwriter signs it and the contract checks the signature. Settling buys two Telegraph jobs (1 USDC each, from the pool): one from an Open-Meteo miner, one from a NASA POWER miner. If they disagree about your limit, nothing is paid automatically. A replay costs the payout plus 2 USDC, so it can never make money. It exists so you can watch a whole settlement today.</p>
+</div>
+
+<script type="module">
+import { createPublicClient, createWalletClient, custom, http, parseAbi, formatUnits } from "https://esm.sh/viem@2.21.0";
+import { sepolia } from "https://esm.sh/viem@2.21.0/chains";
+
+const ADDR = "0x75e0129d3c30045d72a90676f24a63e2a1e6752f";
+const USDC = "0xcc194e1a843B658526D0D5C431f670028582Ae17";
+const ES = "https://sepolia.etherscan.io";
+const abi = parseAbi([
+  "function buyCover(string location, string date, uint64 settleAfter, uint64 thresholdE6, uint96 payout, uint96 premium, uint64 quoteExpiry, bytes sig)",
+  "function policyCount() view returns (uint256)",
+  "function settle(uint256)", "function finalize(uint256)",
+  "function answers(uint256) view returns (uint256)",
+  "function getPolicy(uint256) view returns ((address holder,uint96 payout,uint96 premium,uint96 jobReserve,uint64 settleAfter,uint64 thresholdE6,uint8 status,uint64 jobA,uint64 jobB,string location,string date))",
+  "event CoverBought(uint256 indexed policyId, address indexed holder, string location, string date, uint256 thresholdE6, uint256 payout, uint256 premium)",
+]);
+const erc = parseAbi(["function mint(address,uint256)", "function approve(address,uint256) returns (bool)", "function balanceOf(address) view returns (uint256)", "function allowance(address,address) view returns (uint256)"]);
+const pub = createPublicClient({ chain: sepolia, transport: http("https://ethereum-sepolia-rpc.publicnode.com") });
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+const STATUS = ["None","Active","Settling","Paid","NotPaid","Disputed","Refunded"];
+const TEXT = { Active:"Bought. Waiting for its settle time.", Settling:"Settling: waiting for Telegraph to deliver both answers (usually 5–15 minutes).", Paid:"Paid: both sources recorded at least your limit.", NotPaid:"Not paid: both sources recorded less than your limit.", Disputed:"Disputed: the two sources disagree about your limit, so the contract did not pay automatically.", Refunded:"Refunded." };
+let wallet, me, mode = "cover", place = null, q = null, policyId = null, timer = null;
+
+const log = (html) => { const d = document.createElement("div"); d.innerHTML = html; $("log").prepend(d); };
+const txLink = (label, h) => `${label}: <a href="${ES}/tx/${h}" target="_blank" rel="noopener">${h.slice(0, 10)}…</a>`;
+const errMsg = (e) => (e.shortMessage || e.message || String(e)).split("\n")[0];
+
+async function refreshWallet() {
+  const [eth, usdc] = await Promise.all([pub.getBalance({ address: me }), pub.readContract({ address: USDC, abi: erc, functionName: "balanceOf", args: [me] })]);
+  $("wallet").innerHTML = `<span class="mono">${me}</span><br>${Number(formatUnits(eth, 18)).toFixed(4)} Sepolia ETH · ${Number(formatUnits(usdc, 6)).toFixed(2)} test USDC`;
+}
+$("connect").onclick = async () => {
+  if (!window.ethereum) { $("wallet").textContent = "No browser wallet found. Install MetaMask or Rabby, then reload."; return; }
+  try {
+    wallet = createWalletClient({ chain: sepolia, transport: custom(window.ethereum) });
+    [me] = await wallet.requestAddresses();
+    try { await wallet.switchChain({ id: sepolia.id }); } catch { await wallet.addChain({ chain: sepolia }); }
+    $("connect").hidden = true; $("mint").hidden = false;
+    await refreshWallet();
+  } catch (e) { $("wallet").textContent = "Could not connect: " + errMsg(e); }
+};
+$("mint").onclick = async () => {
+  try {
+    const h = await wallet.writeContract({ account: me, address: USDC, abi: erc, functionName: "mint", args: [me, 50_000_000n] });
+    $("mint").disabled = true; await pub.waitForTransactionReceipt({ hash: h }); $("mint").disabled = false; await refreshWallet();
+  } catch (e) { $("wallet").insertAdjacentHTML("beforeend", `<div class="err">${esc(errMsg(e))}</div>`); }
+};
+
+// mode + dates
+const iso = (d) => d.toISOString().slice(0, 10);
+function setMode(m) {
+  mode = m; $("tCover").classList.toggle("on", m === "cover"); $("tReplay").classList.toggle("on", m === "replay");
+  const today = new Date();
+  if (m === "cover") {
+    $("modeHint").textContent = "Real cover: for a day 1–90 days ahead. It settles about 6 days after the day, because NASA publishes late. The keeper settles it, or you can.";
+    $("date").min = iso(new Date(today.getTime() + 864e5)); $("date").max = iso(new Date(today.getTime() + 90 * 864e5));
+    $("date").value = iso(new Date(today.getTime() + 7 * 864e5));
+  } else {
+    $("modeHint").textContent = "Replay: pick a day at least 5 days ago and watch the contract settle it now. It costs the payout + 2 USDC, so it never makes money.";
+    $("date").max = iso(new Date(today.getTime() - 5 * 864e5)); $("date").min = iso(new Date(today.getTime() - 365 * 864e5));
+    $("date").value = iso(new Date(today.getTime() - 11 * 864e5));
+  }
+  $("qcard").hidden = true;
+}
+$("tCover").onclick = () => setMode("cover"); $("tReplay").onclick = () => setMode("replay"); setMode("cover");
+
+// place search (Open-Meteo geocoding)
+let st;
+$("place").oninput = () => {
+  clearTimeout(st); place = null; $("picked").textContent = "";
+  const v = $("place").value.trim(); if (v.length < 2) { $("sugg").hidden = true; return; }
+  st = setTimeout(async () => {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=6&language=en&format=json`).then((r) => r.json()).catch(() => ({}));
+    const hits = r.results || [];
+    $("sugg").innerHTML = hits.map((h, i) => `<div data-i="${i}">${esc(h.name)}${h.admin1 ? ", " + esc(h.admin1) : ""}, ${esc(h.country || "")}</div>`).join("");
+    $("sugg").hidden = !hits.length;
+    [...$("sugg").children].forEach((el) => el.onclick = () => {
+      const h = hits[el.dataset.i]; place = { lat: h.latitude, lon: h.longitude, name: `${h.name}, ${h.country || ""}` };
+      $("place").value = el.textContent; $("sugg").hidden = true;
+      $("picked").innerHTML = `Both sources will be asked about <span class="mono">${h.latitude.toFixed(4)},${h.longitude.toFixed(4)}</span> (exact coordinates, so they read the same spot).`;
+    });
+  }, 250);
+};
+
+$("quote").onclick = async () => {
+  $("qerr").textContent = ""; $("qcard").hidden = true;
+  if (!me) return ($("qerr").textContent = "Connect your wallet first.");
+  if (!place) return ($("qerr").textContent = "Pick a place from the list.");
+  $("quote").disabled = true;
+  try {
+    const r = await fetch("/api/quote", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ holder: me, lat: place.lat, lon: place.lon, date: $("date").value, threshold_mm: Number($("limit").value), payout_usdc: Number($("payout").value) }) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "no price");
+    q = j;
+    $("premium").textContent = `${j.premium_usdc} USDC for ${j.payout_usdc} USDC cover`;
+    $("qtext").textContent = j.explain + ` Settles after ${new Date(j.settle_after_iso).toLocaleString()}. Price valid for 15 minutes.`;
+    $("qloc").textContent = `${place.name} · ${j.args.location} · ${j.args.date} · pays if both sources record ≥ ${j.threshold_mm} mm`;
+    $("qcard").hidden = false;
+  } catch (e) { $("qerr").textContent = errMsg(e); }
+  $("quote").disabled = false;
+};
+
+$("buy").onclick = async () => {
+  $("berr").textContent = ""; $("buy").disabled = true;
+  try {
+    const a = q.args, premium = BigInt(a.premium);
+    const allow = await pub.readContract({ address: USDC, abi: erc, functionName: "allowance", args: [me, ADDR] });
+    if (allow < premium) {
+      const h1 = await wallet.writeContract({ account: me, address: USDC, abi: erc, functionName: "approve", args: [ADDR, premium] });
+      await pub.waitForTransactionReceipt({ hash: h1 });
+    }
+    const h = await wallet.writeContract({ account: me, address: ADDR, abi, functionName: "buyCover", args: [a.location, a.date, BigInt(a.settleAfter), BigInt(a.thresholdE6), BigInt(a.payout), premium, BigInt(a.quoteExpiry), a.sig] });
+    const rc = await pub.waitForTransactionReceipt({ hash: h });
+    if (rc.status !== "success") throw new Error("purchase reverted");
+    policyId = await pub.readContract({ address: ADDR, abi, functionName: "policyCount" });
+    // policyCount may have moved if someone else bought at the same moment: find ours in the receipt
+    const ev = rc.logs.find((l) => l.address.toLowerCase() === ADDR.toLowerCase() && l.topics.length === 3);
+    if (ev) policyId = BigInt(ev.topics[1]);
+    $("pcard").hidden = false; $("qcard").hidden = true;
+    log(txLink(`Bought policy #${policyId}`, h));
+    await refreshWallet(); await showPolicy();
+  } catch (e) { $("berr").textContent = errMsg(e); }
+  $("buy").disabled = false;
+};
+
+const unpack = (v) => !(v >> 255n) ? null : !((v >> 254n) & 1n) ? "failed" : Number(v & ((1n << 64n) - 1n)) / 1e6;
+async function showPolicy() {
+  const p = await pub.readContract({ address: ADDR, abi, functionName: "getPolicy", args: [policyId] });
+  const st = STATUS[p.status], lim = Number(p.thresholdE6) / 1e6;
+  $("ptitle").innerHTML = `Policy #${policyId} · ${esc(place?.name || p.location)} · ${esc(p.date)} · ${TEXT[st] || st}`;
+  const now = Math.floor(Date.now() / 1000);
+  $("settle").hidden = !(st === "Active" && now >= Number(p.settleAfter));
+  let a = null, b = null;
+  if (p.jobA) [a, b] = (await Promise.all([p.jobA, p.jobB].map((j) => pub.readContract({ address: ADDR, abi, functionName: "answers", args: [j] })))).map(unpack);
+  const max = Math.max(lim, typeof a === "number" ? a : 0, typeof b === "number" ? b : 0) * 1.15 || 1;
+  const bar = (n, c, v) => `<div class="bar"><span>${n}</span><div class="track"><div class="fill" style="width:${typeof v === "number" ? 100 * v / max : 0}%;background:${c}"></div><div class="limit" style="left:${100 * lim / max}%"></div></div><span class="mono">${v === null ? (p.jobA ? "waiting" : "–") : v === "failed" ? "no answer" : v + " mm"}</span></div>`;
+  $("pbars").innerHTML = bar("A · Open-Meteo", "var(--a)", a) + bar("B · NASA POWER", "var(--b)", b) + (p.jobA ? `<div class="hint">Telegraph jobs #${p.jobA} and #${p.jobB}. Black line = your limit.</div>` : "");
+  $("finalize").hidden = !(st === "Settling" && a !== null && b !== null);
+  clearTimeout(timer);
+  if (st === "Settling") timer = setTimeout(showPolicy, 20000);
+}
+$("settle").onclick = async () => {
+  $("perr").textContent = ""; $("settle").disabled = true;
+  try {
+    const h = await wallet.writeContract({ account: me, address: ADDR, abi, functionName: "settle", args: [policyId] });
+    await pub.waitForTransactionReceipt({ hash: h }); log(txLink("Contract bought both answers from Telegraph", h)); await showPolicy();
+  } catch (e) { $("perr").textContent = errMsg(e); }
+  $("settle").disabled = false;
+};
+$("finalize").onclick = async () => {
+  $("perr").textContent = ""; $("finalize").disabled = true;
+  try {
+    const h = await wallet.writeContract({ account: me, address: ADDR, abi, functionName: "finalize", args: [policyId] });
+    await pub.waitForTransactionReceipt({ hash: h }); log(txLink("Finalized", h)); await refreshWallet(); await showPolicy();
+  } catch (e) { $("perr").textContent = errMsg(e); }
+  $("finalize").disabled = false;
+};
+</script>
+</body>
+</html>

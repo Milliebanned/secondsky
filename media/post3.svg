@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0A1020"/><stop offset="1" stop-color="#0E1B2E"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2F7BFF"/><stop offset="1" stop-color="#5EC8FF"/></linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF9F43"/><stop offset="1" stop-color="#FFD27A"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.035"/></pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+
+  <rect x="80" y="64" rx="18" width="470" height="40" fill="#5EC8FF" fill-opacity="0.12" stroke="#5EC8FF" stroke-opacity="0.45"/>
+  <text x="102" y="91" font-family="Menlo, monospace" font-size="18" fill="#9BDCFF" letter-spacing="2">TELEGRAPH HACKATHON · SEASON II</text>
+  <text x="590" y="92" font-family="Helvetica Neue, Helvetica, Arial" font-size="22" font-weight="700" fill="#FFFFFF">SecondSky</text>
+
+  <g font-family="Helvetica Neue, Helvetica, Arial" font-weight="800" fill="#FFFFFF" font-size="58">
+    <text x="80" y="190">The two skies disagreed.</text>
+    <text x="80" y="258">So the contract <tspan fill="#FF6B5B">refused to pay.</tspan></text>
+  </g>
+  <text x="80" y="306" font-family="Menlo, monospace" font-size="20" fill="#8FA3BF">Lagos · 10 November 2026 · pays if rain ≥ 10 mm</text>
+
+  <g font-family="Helvetica Neue, Helvetica, Arial">
+    <!-- scale: 0..20 mm over 1000px starting x=300 -->
+    <text x="80" y="408" font-size="16" fill="#9BDCFF" letter-spacing="2">SOURCE A</text>
+    <text x="80" y="436" font-size="22" font-weight="700" fill="#FFFFFF">Open-Meteo</text>
+    <rect x="300" y="384" width="1000" height="56" rx="12" fill="#FFFFFF" fill-opacity="0.05"/>
+    <rect x="300" y="384" width="880" height="56" rx="12" fill="url(#blue)"/>
+    <text x="1320" y="424" font-size="34" font-weight="800" fill="#FFFFFF">17.6 mm</text>
+    <text x="300" y="468" font-family="Menlo, monospace" font-size="16" fill="#8FA3BF">Telegraph job #7 · said: it rained</text>
+
+    <text x="80" y="548" font-size="16" fill="#FFD27A" letter-spacing="2">SOURCE B</text>
+    <text x="80" y="576" font-size="22" font-weight="700" fill="#FFFFFF">NASA POWER</text>
+    <rect x="300" y="524" width="1000" height="56" rx="12" fill="#FFFFFF" fill-opacity="0.05"/>
+    <rect x="300" y="524" width="132" height="56" rx="12" fill="url(#amber)"/>
+    <text x="1320" y="564" font-size="34" font-weight="800" fill="#FFFFFF">2.65 mm</text>
+    <text x="300" y="608" font-family="Menlo, monospace" font-size="16" fill="#8FA3BF">Telegraph job #8 · said: it stayed dry</text>
+
+    <!-- 10 mm limit line at x = 300 + 500 -->
+    <line x1="800" y1="366" x2="800" y2="598" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="8 6"/>
+    <text x="812" y="362" font-family="Menlo, monospace" font-size="16" fill="#FFFFFF">limit 10 mm</text>
+  </g>
+
+  <rect x="80" y="660" width="1440" height="110" rx="20" fill="#FF6B5B" fill-opacity="0.10" stroke="#FF6B5B" stroke-opacity="0.6"/>
+  <text x="116" y="706" font-family="Menlo, monospace" font-size="18" fill="#FF9A8F" letter-spacing="2">RESULT</text>
+  <text x="116" y="746" font-family="Helvetica Neue, Helvetica, Arial" font-size="30" font-weight="700" fill="#FFFFFF">DISPUTED: no automatic payout. A human looks at it.</text>
+
+  <text x="80" y="830" font-family="Menlo, monospace" font-size="17" fill="#8FA3BF">Both answers bought on-chain by the contract itself from Telegraph · Sepolia testnet · test policy</text>
+</svg>

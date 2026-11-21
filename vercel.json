@@ -1,6 +1,6 @@
 {
   "buildCommand": "",
-  "installCommand": "",
   "outputDirectory": "site",
-  "framework": null
+  "framework": null,
+  "crons": [{ "path": "/api/keeper", "schedule": "0 7 * * *" }]
 }
