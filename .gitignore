@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.*
+*.key
+.DS_Store
+scripts/kill-test-*.json
+cache/
+artifacts/
+.vercel
+IDEAS.md

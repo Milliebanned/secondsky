@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1020"/>
+      <stop offset="1" stop-color="#0E1B2E"/>
+    </linearGradient>
+    <linearGradient id="rain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5EC8FF"/>
+      <stop offset="1" stop-color="#2F7BFF"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#5EC8FF"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+
+  <!-- falling rain streaks -->
+  <g stroke="#5EC8FF" stroke-opacity="0.16" stroke-width="3" stroke-linecap="round">
+    <line x1="1180" y1="40" x2="1168" y2="100"/>
+    <line x1="1260" y1="20" x2="1248" y2="80"/>
+    <line x1="1340" y1="70" x2="1328" y2="130"/>
+    <line x1="1420" y1="30" x2="1408" y2="90"/>
+    <line x1="1500" y1="80" x2="1488" y2="140"/>
+    <line x1="1220" y1="130" x2="1208" y2="190"/>
+    <line x1="1460" y1="160" x2="1448" y2="220"/>
+    <line x1="1540" y1="10" x2="1528" y2="70"/>
+  </g>
+
+  <!-- header tag -->
+  <rect x="80" y="70" rx="18" ry="18" width="470" height="40" fill="#5EC8FF" fill-opacity="0.12" stroke="#5EC8FF" stroke-opacity="0.45"/>
+  <text x="102" y="97" font-family="Menlo, monospace" font-size="18" fill="#9BDCFF" letter-spacing="2">TELEGRAPH HACKATHON · SEASON II</text>
+  <text x="590" y="98" font-family="Helvetica Neue, Helvetica, Arial" font-size="22" font-weight="700" fill="#FFFFFF">SecondSky</text>
+
+  <!-- headline -->
+  <text x="80" y="200" font-family="Helvetica Neue, Helvetica, Arial" font-size="64" font-weight="800" fill="#FFFFFF">A smart contract just bought</text>
+  <text x="80" y="275" font-family="Helvetica Neue, Helvetica, Arial" font-size="64" font-weight="800" fill="#FFFFFF">rainfall data. <tspan fill="#5EC8FF">By itself.</tspan></text>
+
+  <!-- flow -->
+  <g font-family="Helvetica Neue, Helvetica, Arial">
+    <rect x="80" y="350" width="300" height="130" rx="18" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <text x="104" y="392" font-size="15" fill="#8FA3BF" letter-spacing="1.5">1 · BUYER</text>
+    <text x="104" y="430" font-size="26" font-weight="700" fill="#FFFFFF">Smart contract</text>
+    <text x="104" y="462" font-family="Menlo, monospace" font-size="17" fill="#9BDCFF">0xd41f…579a</text>
+
+    <line x1="388" y1="415" x2="436" y2="415" stroke="#5EC8FF" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="446" y="350" width="300" height="130" rx="18" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <text x="470" y="392" font-size="15" fill="#8FA3BF" letter-spacing="1.5">2 · ORDER</text>
+    <text x="470" y="430" font-size="26" font-weight="700" fill="#FFFFFF">On-chain job #2</text>
+    <text x="470" y="462" font-size="17" fill="#C9D4E5">paid 1 test USDC</text>
+
+    <line x1="754" y1="415" x2="802" y2="415" stroke="#5EC8FF" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="812" y="350" width="300" height="130" rx="18" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <text x="836" y="392" font-size="15" fill="#8FA3BF" letter-spacing="1.5">3 · SUPPLIER</text>
+    <text x="836" y="430" font-size="26" font-weight="700" fill="#FFFFFF">Weather miner</text>
+    <text x="836" y="462" font-size="17" fill="#C9D4E5">ranked on Telegraph</text>
+
+    <line x1="1120" y1="415" x2="1168" y2="415" stroke="#5EC8FF" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="1178" y="350" width="342" height="130" rx="18" fill="#5EC8FF" fill-opacity="0.12" stroke="#5EC8FF" stroke-opacity="0.7"/>
+    <text x="1202" y="392" font-size="15" fill="#9BDCFF" letter-spacing="1.5">4 · CALLBACK</text>
+    <text x="1202" y="430" font-size="26" font-weight="700" fill="#FFFFFF">Answer stored</text>
+    <text x="1202" y="462" font-size="17" fill="#C9D4E5">inside the contract</text>
+  </g>
+
+  <!-- result card -->
+  <rect x="80" y="530" width="880" height="240" rx="24" fill="#FFFFFF" fill-opacity="0.04" stroke="#FFFFFF" stroke-opacity="0.14"/>
+  <text x="120" y="585" font-family="Menlo, monospace" font-size="20" fill="#8FA3BF">readings(2) → Nairobi · 5 Nov 2026</text>
+  <g font-family="Helvetica Neue, Helvetica, Arial">
+    <path d="M150 640 C150 640 122 676 122 694 A28 28 0 0 0 178 694 C178 676 150 640 150 640 Z" fill="url(#rain)"/>
+    <text x="205" y="718" font-size="96" font-weight="800" fill="#FFFFFF">3.3<tspan dx="14" font-size="44" font-weight="600" fill="#9BDCFF">mm rain</tspan></text>
+    <text x="640" y="672" font-size="20" fill="#8FA3BF">HIGH / LOW</text>
+    <text x="640" y="718" font-size="44" font-weight="700" fill="#FFFFFF">24.3° / 15.9°C</text>
+  </g>
+
+  <!-- right column -->
+  <g font-family="Helvetica Neue, Helvetica, Arial">
+    <text x="1010" y="575" font-size="22" font-weight="700" fill="#FFFFFF">What's next</text>
+    <text x="1010" y="618" font-size="21" fill="#C9D4E5">Weather cover that pays out</text>
+    <text x="1010" y="648" font-size="21" fill="#C9D4E5">automatically when the rain</text>
+    <text x="1010" y="678" font-size="21" fill="#C9D4E5">doesn't come, and refuses</text>
+    <text x="1010" y="708" font-size="21" fill="#C9D4E5">to settle when sources disagree.</text>
+  </g>
+
+  <!-- footer -->
+  <line x1="80" y1="815" x2="1520" y2="815" stroke="#FFFFFF" stroke-opacity="0.1"/>
+  <text x="80" y="852" font-family="Menlo, monospace" font-size="17" fill="#8FA3BF">No human in the loop · ERC-8183 job on @Telegraphprotoc · Ethereum Sepolia testnet</text>
+</svg>

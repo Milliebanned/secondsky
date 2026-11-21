@@ -1,0 +1,118 @@
+version: "1"
+kind: miner
+id: 77031
+slug: secondsky-nasa-rainfall
+protocol: generic
+name: SecondSky NASA Rainfall
+description: >-
+  Recorded rain, high and low for a named place and past day from NASA POWER
+  (satellite observations and MERRA-2 reanalysis for the location's grid cell).
+  An upstream independent of Open-Meteo, so apps can get a genuine second
+  opinion on past weather. Not a station reading, and the answer says so.
+base_url: https://secondsky-nasa.vercel.app
+
+auth:
+  type: none
+
+rate_limit_per_sec: 2
+cache_ttl_sec: 0
+circuit_threshold: 5
+circuit_cooldown_seconds: 30
+
+errors:
+  message_path: error
+
+endpoints:
+  - path: /verify
+    external_path: /api/verify
+    method: GET
+    intents: [WEATHER_FORECAST_VERIFY_GENERAL]
+    description: >-
+      WEATHER_FORECAST_VERIFY_GENERAL. Given location and date (a past
+      YYYY-MM-DD day), returns that day's recorded precipitation_mm, temp_max_c
+      and temp_min_c from NASA POWER, with a one-sentence content. Answers
+      "How much rain fell in Nairobi on 2026-11-05?" or "What was the high in
+      Lisbon yesterday?". Nothing is guessed: HTTP 400 for location_required,
+      date_required, invalid_date, coordinates_out_of_range; HTTP 422 for
+      place_not_found, window_not_finished (the day has not ended at the place)
+      and no_archive_value (NASA publishes with a few days' delay); HTTP 502 for
+      provider_unavailable.
+    params:
+      query:
+        optional:
+          - name: location
+            type: string
+            intents: ["*"]
+            description: The place, as a name ("Nairobi", "Kerman, California") or "lat,lon" in decimal degrees.
+          - name: date
+            type: string
+            intents: ["*"]
+            description: The past day, YYYY-MM-DD.
+
+input_schema:
+  type: object
+  properties:
+    location:
+      type: string
+      description: Place name or "lat,lon".
+    date:
+      type: string
+      format: date
+
+output_schema:
+  type: object
+  properties:
+    content:
+      type: string
+      description: One sentence stating the NASA POWER record, the place and the day.
+    location:
+      type: string
+    date:
+      type: string
+      format: date
+    temp_max_c:
+      type: number
+    temp_min_c:
+      type: number
+    precipitation_mm:
+      type: number
+    condition:
+      type: string
+    verdict:
+      type: string
+      enum: [no_forecast_supplied]
+  required: [content, verdict]
+
+semantics:
+  signal_mapping:
+    label_field: content
+    reason_field: verdict
+  supported_intents:
+    - WEATHER_FORECAST_VERIFY_GENERAL
+
+intent_mapping:
+  WEATHER_FORECAST_VERIFY_GENERAL:
+    endpoint: /verify
+    input:
+      location:
+        from: location
+        how: The requested place, verbatim (a name or "lat,lon").
+      date:
+        from: date
+        how: The requested past day as YYYY-MM-DD, verbatim.
+    output:
+      location:
+        path: location
+      date:
+        path: date
+      condition:
+        path: condition
+      temp_max_c:
+        path: temp_max_c
+        unit: degrees Celsius
+      temp_min_c:
+        path: temp_min_c
+        unit: degrees Celsius
+      precipitation_mm:
+        path: precipitation_mm
+        unit: mm
