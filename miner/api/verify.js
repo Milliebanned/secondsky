@@ -1,55 +1,35 @@
-// SecondSky NASA rainfall miner — WEATHER_FORECAST_VERIFY_GENERAL
-// GET /api/verify?location=Nairobi&date=2026-11-05
+// SecondSky NASA rainfall miner: WEATHER_FORECAST_VERIFY_GENERAL
+// GET /api/verify?location=Nairobi&date=2026-11-05[&forecast_precipitation_mm=12&forecast_temp_max_c=28&forecast_temp_min_c=15]
 // Returns the recorded rain, high and low for a past day from NASA POWER (satellite + MERRA-2
-// reanalysis), an upstream independent of Open-Meteo. Refuses instead of guessing.
-
-const GEO = "https://geocoding-api.open-meteo.com/v1/search"; // place lookup only, not weather data
-const POWER = "https://power.larc.nasa.gov/api/temporal/daily/point";
+// reanalysis), an upstream independent of Open-Meteo. If a forecast is supplied, scores it.
+// Refuses instead of guessing.
+import { resolvePlace, dayIsOver, validDate, dayRecord, condition, SOURCE } from "../lib/nasa.js";
 
 function refuse(res, status, code, message, extra = {}) {
   res.status(status).json({ error: message, code, ...extra });
 }
 
-async function getJson(url, ms = 8000) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), ms);
-  try {
-    const r = await fetch(url, { signal: ctrl.signal, headers: { "User-Agent": "SecondSky-miner/1.0" } });
-    if (!r.ok) throw new Error(`upstream ${r.status}`);
-    return await r.json();
-  } finally {
-    clearTimeout(t);
-  }
+// Tolerances, stated in every answer: rain within max(2 mm, 25% of the forecast) and on the same
+// side of 0.2 mm (wet/dry); temperatures within 2 °C.
+const RAIN_ABS = 2, RAIN_REL = 0.25, TEMP_TOL = 2, WET = 0.2;
+
+function num(v) {
+  if (v === undefined || v === null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : NaN;
 }
 
-async function resolvePlace(location) {
-  const m = location.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
-  if (m) {
-    const lat = Number(m[1]), lon = Number(m[2]);
-    if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return { error: "coordinates_out_of_range" };
-    return { lat, lon, name: `${lat},${lon}`, timezone: null };
+export function scoreForecast(rec, fc) {
+  const checks = [];
+  if (fc.rain !== null) {
+    const tol = Math.max(RAIN_ABS, RAIN_REL * fc.rain);
+    const ok = Math.abs(rec.rain - fc.rain) <= tol && (rec.rain >= WET) === (fc.rain >= WET);
+    checks.push({ field: "precipitation_mm", forecast: fc.rain, observed: rec.rain, tolerance: Math.round(tol * 100) / 100, verified: ok });
   }
-  const name = location.split(",")[0].trim();
-  const hint = location.includes(",") ? location.split(",").slice(1).join(",").trim().toLowerCase() : "";
-  const g = await getJson(`${GEO}?name=${encodeURIComponent(name)}&count=10&language=en&format=json`);
-  let hits = g.results || [];
-  if (hint) {
-    const narrowed = hits.filter((h) =>
-      [h.country, h.country_code, h.admin1, h.admin2].filter(Boolean).some((v) => v.toLowerCase().includes(hint) || hint.includes(v.toLowerCase())));
-    if (narrowed.length) hits = narrowed;
-  }
-  if (!hits.length) return { error: "place_not_found" };
-  const h = hits.sort((a, b) => (b.population || 0) - (a.population || 0))[0];
-  return { lat: h.latitude, lon: h.longitude, name: `${h.name}, ${h.country}`, timezone: h.timezone };
-}
-
-function dayIsOver(date, timezone) {
-  // the day must have ended in the place's own calendar (fallback: UTC+14, the latest zone)
-  const now = new Date();
-  const local = timezone
-    ? new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now)
-    : new Date(now.getTime() - 14 * 3600e3).toISOString().slice(0, 10);
-  return date < local;
+  if (fc.tmax !== null) checks.push({ field: "temp_max_c", forecast: fc.tmax, observed: rec.tmax, tolerance: TEMP_TOL, verified: Math.abs(rec.tmax - fc.tmax) <= TEMP_TOL });
+  if (fc.tmin !== null) checks.push({ field: "temp_min_c", forecast: fc.tmin, observed: rec.tmin, tolerance: TEMP_TOL, verified: Math.abs(rec.tmin - fc.tmin) <= TEMP_TOL });
+  if (!checks.length) return { verdict: "no_forecast_supplied", checks };
+  return { verdict: checks.every((c) => c.verified) ? "verified" : "missed", checks };
 }
 
 export default async function handler(req, res) {
@@ -57,11 +37,13 @@ export default async function handler(req, res) {
   const q = req.query || {};
   const location = (q.location || "").toString().slice(0, 256);
   const date = (q.date || "").toString().slice(0, 10);
+  const fc = { rain: num(q.forecast_precipitation_mm), tmax: num(q.forecast_temp_max_c), tmin: num(q.forecast_temp_min_c) };
 
   if (!location) return refuse(res, 400, "location_required", "location is required");
   if (!date) return refuse(res, 400, "date_required", "date is required (YYYY-MM-DD)");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date + "T00:00:00Z")))
-    return refuse(res, 400, "invalid_date", "date must be YYYY-MM-DD");
+  if (!validDate(date)) return refuse(res, 400, "invalid_date", "date must be YYYY-MM-DD");
+  if ([fc.rain, fc.tmax, fc.tmin].some(Number.isNaN)) return refuse(res, 400, "invalid_forecast", "forecast values must be numbers");
+  if (fc.rain !== null && fc.rain < 0) return refuse(res, 400, "invalid_forecast", "forecast precipitation cannot be negative");
 
   let place;
   try { place = await resolvePlace(location); }
@@ -71,30 +53,28 @@ export default async function handler(req, res) {
   if (!dayIsOver(date, place.timezone))
     return refuse(res, 422, "window_not_finished", "that day has not ended at this place yet", { retry_after_seconds: 86400 });
 
-  const ymd = date.replaceAll("-", "");
-  let p;
-  try {
-    p = await getJson(`${POWER}?parameters=PRECTOTCORR,T2M_MAX,T2M_MIN&community=AG&latitude=${place.lat}&longitude=${place.lon}&start=${ymd}&end=${ymd}&format=JSON`, 12000);
-  } catch {
-    return refuse(res, 502, "provider_unavailable", "NASA POWER did not answer");
-  }
-  const par = p?.properties?.parameter;
-  const rain = par?.PRECTOTCORR?.[ymd], tmax = par?.T2M_MAX?.[ymd], tmin = par?.T2M_MIN?.[ymd];
-  const missing = (v) => v === undefined || v === null || v <= -998; // NASA uses -999 for "no value yet"
-  if (missing(rain) || missing(tmax) || missing(tmin))
-    return refuse(res, 422, "no_archive_value", "NASA POWER has no value for that day yet (it publishes with a few days' delay)", { retry_after_seconds: 86400 });
+  const rec = await dayRecord(place, date);
+  if (rec.error === "provider_unavailable") return refuse(res, 502, rec.error, "NASA POWER did not answer");
+  if (rec.error) return refuse(res, 422, rec.error, "NASA POWER has no value for that day yet (it publishes with a few days' delay)", { retry_after_seconds: 86400 });
 
-  const r2 = (v) => Math.round(v * 100) / 100;
+  const score = scoreForecast(rec, fc);
+  const record = `NASA POWER records ${rec.rain} mm of precipitation, a high of ${rec.tmax}°C and a low of ${rec.tmin}°C for ${place.name} on ${date}`;
+  const tail = " (satellite and MERRA-2 reanalysis for the location's grid cell, not a station reading).";
+  const verdictText = score.verdict === "no_forecast_supplied" ? "" :
+    ` The supplied forecast ${score.verdict === "verified" ? "verified" : "missed"}: ` +
+    score.checks.map((c) => `${c.field} forecast ${c.forecast} vs ${c.observed} observed (±${c.tolerance}) ${c.verified ? "ok" : "off"}`).join("; ") + ".";
+
   res.status(200).json({
-    content: `NASA POWER records ${r2(rain)} mm of precipitation, a high of ${r2(tmax)}°C and a low of ${r2(tmin)}°C for ${place.name} on ${date} (satellite and MERRA-2 reanalysis for the location's grid cell, not a station reading).`,
+    content: record + tail + verdictText,
     location: place.name,
     date,
-    temp_max_c: r2(tmax),
-    temp_min_c: r2(tmin),
-    precipitation_mm: r2(rain),
-    condition: rain >= 10 ? "heavy rain" : rain >= 2.5 ? "rain" : rain >= 0.2 ? "light rain" : "dry",
-    verdict: "no_forecast_supplied",
-    source: "NASA POWER daily (PRECTOTCORR, T2M_MAX, T2M_MIN)",
+    temp_max_c: rec.tmax,
+    temp_min_c: rec.tmin,
+    precipitation_mm: rec.rain,
+    condition: condition(rec.rain),
+    verdict: score.verdict,
+    forecast_checks: score.checks,
+    source: SOURCE,
     coordinates: { lat: place.lat, lon: place.lon },
   });
 }

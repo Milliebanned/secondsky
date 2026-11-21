@@ -8,7 +8,9 @@ description: >-
   Recorded rain, high and low for a named place and past day from NASA POWER
   (satellite observations and MERRA-2 reanalysis for the location's grid cell).
   An upstream independent of Open-Meteo, so apps can get a genuine second
-  opinion on past weather. Not a station reading, and the answer says so.
+  opinion on past weather. Scores a supplied forecast against the record, and
+  resolves weather conditions ("did at least 10 mm fall in Lagos on
+  2026-11-10?") for contracts. Not a station reading, and the answer says so.
 base_url: https://secondsky-nasa.vercel.app
 
 auth:
@@ -30,9 +32,12 @@ endpoints:
     description: >-
       WEATHER_FORECAST_VERIFY_GENERAL. Given location and date (a past
       YYYY-MM-DD day), returns that day's recorded precipitation_mm, temp_max_c
-      and temp_min_c from NASA POWER, with a one-sentence content. Answers
-      "How much rain fell in Nairobi on 2026-11-05?" or "What was the high in
-      Lisbon yesterday?". Nothing is guessed: HTTP 400 for location_required,
+      and temp_min_c from NASA POWER, with a one-sentence content. If a
+      forecast is supplied (forecast_precipitation_mm, forecast_temp_max_c,
+      forecast_temp_min_c), verdict is verified or missed, using rain within
+      max(2 mm, 25%) and the same wet/dry side of 0.2 mm, temperatures within
+      2 C; otherwise verdict is no_forecast_supplied. Answers "Yesterday's
+      forecast called for 12 mm in Lisbon: did it verify?". Nothing is guessed: HTTP 400 for location_required,
       date_required, invalid_date, coordinates_out_of_range; HTTP 422 for
       place_not_found, window_not_finished (the day has not ended at the place)
       and no_archive_value (NASA publishes with a few days' delay); HTTP 502 for
@@ -48,6 +53,42 @@ endpoints:
             type: string
             intents: ["*"]
             description: The past day, YYYY-MM-DD.
+          - name: forecast_precipitation_mm
+            type: number
+            intents: ["*"]
+            description: The forecast rain total for that day in mm, if a forecast is being checked.
+          - name: forecast_temp_max_c
+            type: number
+            intents: ["*"]
+            description: The forecast daily high in degrees Celsius, if being checked.
+          - name: forecast_temp_min_c
+            type: number
+            intents: ["*"]
+            description: The forecast daily low in degrees Celsius, if being checked.
+  - path: /resolve
+    external_path: /api/resolve
+    method: POST
+    intents: [EVENT_OUTCOME_RESOLUTION_GENERAL]
+    description: >-
+      EVENT_OUTCOME_RESOLUTION_GENERAL for weather conditions only. Given an
+      event sentence naming a place, a past calendar day and a rain, daily-high
+      or daily-low condition ("Did at least 10 mm of rain fall in Lagos on
+      2026-11-10?", "Was there frost in Kerman, California on 12 November
+      2026?"), returns outcome yes or no with the NASA POWER value it was
+      decided on. Units mm, cm, inches, C and F are converted. "Did it rain"
+      with no amount means at least 0.2 mm. A day NASA has not published yet
+      returns outcome unresolved. Elections, sports and anything that is not a
+      weather condition are refused with HTTP 422 not_a_weather_condition,
+      never guessed.
+    params:
+      body:
+        required:
+          - name: event
+            type: string
+            intents: ["*"]
+            description: >-
+              The weather condition to resolve, in plain English, with a place
+              and a calendar date. At most 500 characters.
 
 input_schema:
   type: object
@@ -80,7 +121,7 @@ output_schema:
       type: string
     verdict:
       type: string
-      enum: [no_forecast_supplied]
+      enum: [no_forecast_supplied, verified, missed]
   required: [content, verdict]
 
 semantics:
@@ -89,6 +130,7 @@ semantics:
     reason_field: verdict
   supported_intents:
     - WEATHER_FORECAST_VERIFY_GENERAL
+    - EVENT_OUTCOME_RESOLUTION_GENERAL
 
 intent_mapping:
   WEATHER_FORECAST_VERIFY_GENERAL:
@@ -116,3 +158,22 @@ intent_mapping:
       precipitation_mm:
         path: precipitation_mm
         unit: mm
+  EVENT_OUTCOME_RESOLUTION_GENERAL:
+    endpoint: /resolve
+    input:
+      event:
+        from: event
+        how: The event or question to resolve, verbatim.
+    output:
+      event:
+        path: event
+      outcome:
+        path: outcome
+      resolved_yes:
+        path: resolved_yes
+      observed_value:
+        path: observed_value
+      resolved_at:
+        path: resolved_at
+      sources:
+        path: sources
