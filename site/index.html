@@ -44,7 +44,7 @@ h2{font-size:20px;margin:44px 0 6px}
 .pol .meta{color:var(--muted);font-size:13px}
 .badge{font:600 12px/1 Inter;padding:6px 10px;border-radius:999px;color:#fff}
 .b-Paid{background:var(--wet)} .b-NotPaid{background:var(--dry)} .b-Disputed{background:var(--dis)}
-.b-Settling,.b-Active{background:var(--wait)} .b-Refunded{background:var(--dry)}
+.b-PaidHalf{background:#3b82a6} .b-Settling,.b-Active{background:var(--wait)} .b-Refunded{background:var(--dry)}
 .bars{margin:14px 0 8px;display:grid;gap:8px}
 .bar{display:grid;grid-template-columns:120px 1fr 72px;gap:10px;align-items:center;font-size:13px}
 .bar .lbl{color:var(--muted)}
@@ -71,34 +71,44 @@ footer{padding:40px 0 60px;color:var(--muted);font-size:13px}
 <header>
   <div class="tag">Ethereum Sepolia testnet · live from the chain</div>
   <h1>SecondSky <span>— rain cover that asks two skies</span></h1>
-  <p class="lede">Cover for one day that has to stay dry: a harvest, a spray run, a concrete pour. When the day is over, the contract buys that day's recorded rainfall from Telegraph twice, from two independent sources. It pays only when both agree it rained, and refuses to decide alone when they don't.</p>
+  <p class="lede">Cover for one day that has to stay dry: a pour, a haul-road shift, a harvest. When the day is over, the contract buys that day's recorded rainfall from Telegraph twice, from two independent sources, and pays by rule. No one decides a claim by hand.</p>
   <p><a class="cta" href="/buy.html">Buy cover, or replay a past day →</a></p>
   <div class="how">
     <div><b>Source A · OathCast</b>Open-Meteo archive, Telegraph miner <span class="mono" id="srcA">5130</span></div>
     <div><b>Source B · SecondSky NASA</b>NASA POWER satellite + reanalysis, Telegraph miner <span class="mono" id="srcB">6151</span></div>
-    <div><b>Both over the limit</b>Pays the holder automatically</div>
-    <div><b>They disagree</b>Disputed: no automatic payout, human review</div>
+    <div><b>Both reach the limit</b>Pays 100%</div>
+    <div><b>They split</b>Pays 50%, automatically</div>
+    <div><b>Neither reaches it</b>Pays 0</div>
   </div>
 </header>
 
 <h2>Numbers</h2>
-<p class="sub">Read from the SecondSky contract on every page load. Nothing on this page is typed in by hand. <span id="updated"></span></p>
+<p class="sub">Read from the contracts on every page load. Nothing here is typed in by hand. <span id="updated"></span></p>
 <div class="stats" id="stats"><div class="stat"><div class="k">Loading</div><div class="v">…</div></div></div>
 
 <h2>Every policy</h2>
-<p class="sub">Each bar is what one source said fell that day. The black line is the policy's rain limit. Every step links to its transaction.</p>
+<p class="sub">Each bar is what one source said fell that day. The black line is the policy's rain limit. Every step links to its transaction and to Telegraph's own record of the job, which names the miner that answered.</p>
 <div class="policies" id="policies"></div>
 <p id="err"></p>
 
-<div class="note"><b>What this is.</b> A testnet run with test USDC. The policies so far are bought by our own test wallet, on days that have already passed, to exercise settlement against real recorded weather. They are not customers. Real cover would be sold before the day.</div>
+<div class="note"><b>What this is.</b> Testnet, test USDC. Most policies so far were bought by our own test wallet to exercise settlement against real recorded weather (replays of past days, which cost more than they can pay). They are not customers, and are labelled "our test" below.</div>
 
-<h2>Why two sources</h2>
-<p class="facts">Most weather apps on Telegraph (and most parametric-insurance demos) read one upstream, usually Open-Meteo. Asking two miners that both read Open-Meteo is one opinion counted twice. NASA POWER is a separate pipeline (satellite precipitation and MERRA-2 reanalysis). The two often disagree on a given day, so a contract that pays on one of them pays on luck. SecondSky treats disagreement as a result, not an error.</p>
-<p class="facts">Known limit, stated plainly: if a named miner does not answer, Telegraph can route the job to another miner, and which miner answered is not readable on-chain. The contract owner can therefore mark a policy Disputed after checking the job receipts. That can only <i>block</i> a payout, never force one.</p>
+<h2>How often do two skies disagree?</h2>
+<p class="facts">We compared Open-Meteo and NASA POWER daily rainfall for 10 cities over a full year (Nov 2025 – Oct 2026, 3,650 city-days). On most days both are dry. But on days when at least one source reaches the limit, they often disagree:</p>
+<div class="stats">
+  <div class="stat"><div class="k">Limit 5 mm</div><div class="v">55%</div><div class="n">of 1,036 rainy days split</div></div>
+  <div class="stat"><div class="k">Limit 10 mm</div><div class="v">64%</div><div class="n">of 587 rainy days split</div></div>
+  <div class="stat"><div class="k">Limit 20 mm</div><div class="v">73%</div><div class="n">of 221 rainy days split</div></div>
+</div>
+<p class="facts">A contract that trusts one source pays on that source's luck. Our first version refused to pay when they split and left it to a person, which on these numbers means most rainy days end in review. Version 2 pays half on a split, automatically, and prices that in: the premium uses 10 years of <i>both</i> sources at the exact spot. Method and code: <a href="https://github.com/Milliebanned/secondsky/blob/main/scripts/agreement_study.py">scripts/agreement_study.py</a>.</p>
+
+<h2>Who can do what</h2>
+<p class="facts"><b>Anyone</b> can settle a due policy, and finalize it a day after the answers arrive. <b>The operator</b> (a hot key on the quote server) signs prices up to a 50 USDC payout cap, finalizes at once after checking Telegraph's job records, and, if a job was answered by a miner other than the one named, can only send the policy back to be bought again. It cannot pick an outcome, move money or change settings. <b>The owner</b> (a cold key that never touches a server) controls the pool and sources. It can withdraw only money not promised to open policies. If a policy is never settled, the buyer can take the premium back after 7 days.</p>
 
 <h2>Contracts and code</h2>
 <p class="facts">
-SecondSky: <a class="mono" id="cAddr" target="_blank" rel="noopener"></a><br>
+SecondSky v2 (current): <a class="mono" href="https://sepolia.etherscan.io/address/0x0136e904ef5df658588c84d95f520a338b3bbcff" target="_blank" rel="noopener">0x0136e904ef5df658588c84d95f520a338b3bbcff</a> · <a href="https://repo.sourcify.dev/11155111/0x0136E904eF5dF658588c84d95F520A338b3BBcfF" target="_blank" rel="noopener">source verified (Sourcify, exact match)</a><br>
+SecondSky v1 (first run, closes when its last policy settles): <a class="mono" href="https://sepolia.etherscan.io/address/0x75e0129d3c30045d72a90676f24a63e2a1e6752f" target="_blank" rel="noopener">0x75e0129d3c30045d72a90676f24a63e2a1e6752f</a><br>
 Telegraph Diamond: <a class="mono" href="https://sepolia.etherscan.io/address/0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b" target="_blank" rel="noopener">0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b</a><br>
 NASA source endpoint: <a class="mono" href="https://secondsky-nasa.vercel.app/api/verify?location=Nairobi&date=2026-11-05" target="_blank" rel="noopener">secondsky-nasa.vercel.app/api/verify</a><br>
 Code: <a href="https://github.com/Milliebanned/secondsky" target="_blank" rel="noopener">github.com/Milliebanned/secondsky</a>
@@ -111,12 +121,14 @@ Code: <a href="https://github.com/Milliebanned/secondsky" target="_blank" rel="n
 import { createPublicClient, http, parseAbi, formatUnits, decodeEventLog } from "https://esm.sh/viem@2.21.0";
 import { sepolia } from "https://esm.sh/viem@2.21.0/chains";
 
-const ADDR = "0x75e0129d3c30045d72a90676f24a63e2a1e6752f";
-const FROM = 12181578n;
 const USDC = "0xcc194e1a843B658526D0D5C431f670028582Ae17";
 const ES = "https://sepolia.etherscan.io";
-const STATUS = ["None","Active","Settling","Paid","NotPaid","Disputed","Refunded"];
-const LABEL = { Active:"Waiting to settle", Settling:"Waiting for Telegraph", Paid:"Paid", NotPaid:"Stayed dry · not paid", Disputed:"Sources disagree · disputed", Refunded:"Refunded" };
+const OUR_TEST = "0xae11b21cc16223e359acfcde5ad86a9a03286e61"; // our own test holder wallet
+const CONTRACTS = [
+  { v: 2, addr: "0x0136e904ef5df658588c84d95f520a338b3bbcff", from: 12183620n, status: ["None","Active","Settling","Paid","PaidHalf","NotPaid","Refunded"] },
+  { v: 1, addr: "0x75e0129d3c30045d72a90676f24a63e2a1e6752f", from: 12181578n, status: ["None","Active","Settling","Paid","NotPaid","Disputed","Refunded"] },
+];
+const LABEL = { Active:"Waiting to settle", Settling:"Waiting for Telegraph", Paid:"Paid 100%", PaidHalf:"Sources split · paid 50%", NotPaid:"Stayed dry · not paid", Disputed:"Sources split · disputed (v1 rule)", Refunded:"Refunded" };
 const abi = parseAbi([
   "function policyCount() view returns (uint256)",
   "function lockedPayouts() view returns (uint256)",
@@ -128,13 +140,14 @@ const abi = parseAbi([
   "event CoverBought(uint256 indexed policyId, address indexed holder, string location, string date, uint256 thresholdE6, uint256 payout, uint256 premium)",
   "event SettleRequested(uint256 indexed policyId, uint256 jobA, uint256 jobB)",
   "event Finalized(uint256 indexed policyId, uint8 status, uint256 rainA, uint256 rainB)",
-  "event DisputeResolved(uint256 indexed policyId, bool paid)",
+  "event Finalized(uint256 indexed policyId, uint8 status, uint256 rainA, uint256 rainB, uint256 paid)",
+  "event Retry(uint256 indexed policyId, bool okA, bool okB)",
+  "event WrongMiner(uint256 indexed policyId, uint256 jobId)",
 ]);
 const c = createPublicClient({ chain: sepolia, transport: http("https://ethereum-sepolia-rpc.publicnode.com") });
 const $ = (id) => document.getElementById(id);
 const usd = (v) => Number(formatUnits(v, 6)).toLocaleString(undefined, { maximumFractionDigits: 2 });
 const esc = (s) => String(s).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-$("cAddr").textContent = ADDR; $("cAddr").href = `${ES}/address/${ADDR}`;
 
 function placeName(loc) {
   const m = String(loc).match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
@@ -146,48 +159,59 @@ function unpack(v) {
   return { state: "ok", mm: Number(v & ((1n << 64n) - 1n)) / 1e6 };
 }
 
-async function load() {
-  const read = (functionName, args = [], address = ADDR) => c.readContract({ address, abi, functionName, args });
-  const [count, locked, bal, sA, sB] = await Promise.all([read("policyCount"), read("lockedPayouts"), read("balanceOf", [ADDR], USDC), read("sourceA"), read("sourceB")]);
-  $("srcA").textContent = sA; $("srcB").textContent = sB;
+async function loadContract(k) {
+  const read = (functionName, args = [], address = k.addr) => c.readContract({ address, abi, functionName, args });
+  const [count, locked, bal, sA, sB] = await Promise.all([read("policyCount"), read("lockedPayouts"), read("balanceOf", [k.addr], USDC), read("sourceA"), read("sourceB")]);
   const ids = Array.from({ length: Number(count) }, (_, i) => BigInt(i + 1));
   const pols = await Promise.all(ids.map((id) => read("getPolicy", [id])));
   const ans = await Promise.all(pols.map((p) => Promise.all([p.jobA ? read("answers", [p.jobA]) : 0n, p.jobB ? read("answers", [p.jobB]) : 0n])));
-  const logs = await c.getLogs({ address: ADDR, fromBlock: FROM, toBlock: "latest" });
+  const logs = await c.getLogs({ address: k.addr, fromBlock: k.from, toBlock: "latest" });
   const ev = {};
   for (const l of logs) {
     let d; try { d = decodeEventLog({ abi, data: l.data, topics: l.topics }); } catch { continue; }
+    if (d.args.policyId === undefined) continue;
     const id = String(d.args.policyId); (ev[id] ??= {});
     if (d.eventName === "CoverBought") ev[id].buy = l.transactionHash;
     if (d.eventName === "SettleRequested") (ev[id].settle ??= []).push(l.transactionHash);
-    if (d.eventName === "Finalized") ev[id].final = l.transactionHash;
-    if (d.eventName === "DisputeResolved") ev[id].review = l.transactionHash;
+    if (d.eventName === "Finalized") { ev[id].final = l.transactionHash; if (d.args.paid !== undefined) ev[id].paid = d.args.paid; }
+    if (d.eventName === "Retry") (ev[id].retry ??= []).push(l.transactionHash);
+    if (d.eventName === "WrongMiner") (ev[id].wrong ??= []).push(l.transactionHash);
   }
+  const rows = pols.map((p, i) => ({ k, id: String(ids[i]), p, st: k.status[p.status], a: unpack(ans[i][0]), b: unpack(ans[i][1]), lim: Number(p.thresholdE6) / 1e6, e: ev[String(ids[i])] || {} }));
+  return { k, count, locked, bal, sA, sB, rows };
+}
 
-  let premiums = 0n, paidOut = 0n, jobs = 0, decided = 0, agreed = 0;
-  const n = { Paid: 0, NotPaid: 0, Disputed: 0, open: 0 };
-  const rows = pols.map((p, i) => {
-    const id = String(ids[i]); const st = STATUS[p.status];
-    const a = unpack(ans[i][0]), b = unpack(ans[i][1]);
-    premiums += p.premium;
-    if (st === "Paid") { paidOut += p.payout; n.Paid++; } else if (st === "NotPaid") n.NotPaid++; else if (st === "Disputed") n.Disputed++; else if (st !== "Refunded") n.open++;
-    jobs += (ev[id]?.settle?.length || 0) * 2;
-    const lim = Number(p.thresholdE6) / 1e6;
-    if (a.state === "ok" && b.state === "ok") { decided++; if ((a.mm >= lim) === (b.mm >= lim)) agreed++; }
-    return { id, p, st, a, b, lim, e: ev[id] || {} };
-  });
-
+async function load() {
+  const all = await Promise.all(CONTRACTS.map(loadContract));
+  $("srcA").textContent = all[0].sA; $("srcB").textContent = all[0].sB;
+  const rows = all.flatMap((x) => x.rows.slice().reverse());
+  let premiums = 0n, paidOut = 0n, jobs = 0, decided = 0, agreed = 0, outside = 0;
+  const n = { full: 0, half: 0, none: 0, dispute: 0, open: 0 };
+  for (const r of rows) {
+    premiums += r.p.premium;
+    if (r.p.holder.toLowerCase() !== OUR_TEST) outside++;
+    if (r.st === "Paid") { n.full++; paidOut += r.p.payout; }
+    else if (r.st === "PaidHalf") { n.half++; paidOut += r.p.payout / 2n; }
+    else if (r.st === "NotPaid") n.none++;
+    else if (r.st === "Disputed") n.dispute++;
+    else if (r.st !== "Refunded") n.open++;
+    jobs += (r.e.settle?.length || 0) * 2;
+    if (r.a.state === "ok" && r.b.state === "ok") { decided++; if ((r.a.mm >= r.lim) === (r.b.mm >= r.lim)) agreed++; }
+  }
+  const v2 = all[0];
   const stat = (k, v, note = "") => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${note}</div></div>`;
   $("stats").innerHTML = [
-    stat("Policies", count, `${n.open} still open`),
-    stat("Paid", n.Paid, `${usd(paidOut)} USDC paid out`),
-    stat("Stayed dry", n.NotPaid, "closed, no payout"),
-    stat("Disputed", n.Disputed, "sources disagreed"),
+    stat("Policies", rows.length, `${n.open} open · ${outside} bought by other wallets`),
+    stat("Paid 100%", n.full, "both sources over the limit"),
+    stat("Paid 50%", n.half, "sources split (v2 rule)"),
+    stat("Not paid", n.none, "both under the limit"),
+    stat("Disputed", n.dispute, "split under the old v1 rule"),
+    stat("Paid out", usd(paidOut), "USDC to policy holders"),
     stat("Sources agree", decided ? Math.round(100 * agreed / decided) + "%" : "–", `${agreed} of ${decided} answered policies`),
-    stat("Telegraph jobs", jobs, "bought by the contract itself"),
+    stat("Telegraph jobs", jobs, "bought by the contracts themselves"),
     stat("Evidence cost", "2 USDC", "per settlement (2 × 1 USDC job)"),
-    stat("Pool", usd(bal), `USDC · ${usd(locked)} promised to open policies`),
-    stat("Premiums", usd(premiums), "USDC collected"),
+    stat("v2 pool", usd(v2.bal), `USDC · ${usd(v2.locked)} promised to open policies`),
+    stat("Premiums", usd(premiums), "USDC collected, both versions"),
   ].join("");
 
   const max = Math.max(1, ...rows.flatMap((r) => [r.a.mm || 0, r.b.mm || 0, r.lim])) * 1.1;
@@ -197,20 +221,24 @@ async function load() {
     return `<div class="bar"><span class="lbl">${name}</span><div class="track"><div class="fill" style="width:${w}%;background:${color}"></div><div class="limit" style="left:${100 * lim / max}%"></div></div><span class="mm">${txt}</span></div>`;
   };
   const why = (r) => {
-    if (r.st === "Paid") return `Both sources recorded at least ${r.lim} mm, so the holder was paid ${usd(r.p.payout)} USDC.`;
+    const paid = r.e.paid !== undefined ? usd(r.e.paid) : null;
+    if (r.st === "Paid") return `Both sources recorded at least ${r.lim} mm, so the holder was paid ${paid ?? usd(r.p.payout)} USDC.`;
+    if (r.st === "PaidHalf") return `One source recorded at least ${r.lim} mm and the other did not. By the v2 rule the holder was paid half: ${paid ?? usd(r.p.payout / 2n)} USDC.`;
     if (r.st === "NotPaid") return `Both sources recorded less than ${r.lim} mm. The payout went back to the pool.`;
-    if (r.st === "Disputed") return r.a.state === "ok" && r.b.state === "ok" ? `One source says over ${r.lim} mm, the other says under. The contract would not pick a side.` : "Flagged for review after checking the job receipts.";
+    if (r.st === "Disputed") return `One source says over ${r.lim} mm, the other says under. Under the v1 rule the contract would not pick a side. This is why v2 exists.`;
     if (r.st === "Settling") return "The contract has bought both answers and is waiting for Telegraph to deliver them.";
-    return "Bought. Settles after the covered day ends.";
+    if (r.e.retry || r.e.wrong) return "A source failed or the wrong miner answered, so it went back to be bought again.";
+    return "Bought. Settles after its settle time.";
   };
   const link = (label, h) => h ? `<a href="${ES}/tx/${h}" target="_blank" rel="noopener">${label}</a>` : "";
-  $("policies").innerHTML = rows.reverse().map((r) => `
+  const rec = (j) => `<a href="https://devnode.telegraphprotocol.com/engine/v1/job/${j}/result" target="_blank" rel="noopener">Telegraph record job ${j}</a>`;
+  $("policies").innerHTML = rows.map((r) => `
     <div class="pol">
-      <div class="top"><div><span class="place">#${r.id} · ${placeName(r.p.location)}</span> <span class="meta">${esc(r.p.date)} · pays ${usd(r.p.payout)} USDC if rain ≥ ${r.lim} mm · premium ${usd(r.p.premium)} USDC</span></div>
+      <div class="top"><div><span class="place">v${r.k.v} #${r.id} · ${placeName(r.p.location)}</span> <span class="meta">${esc(r.p.date)} · pays ${usd(r.p.payout)} USDC if rain ≥ ${r.lim} mm · premium ${usd(r.p.premium)} USDC · ${r.p.holder.toLowerCase() === OUR_TEST ? "our test" : `buyer ${r.p.holder.slice(0, 6)}…${r.p.holder.slice(-4)}`}</span></div>
       <span class="badge b-${r.st}">${LABEL[r.st] || r.st}</span></div>
       <div class="bars">${bar("A · Open-Meteo", "var(--a)", r.a, r.lim)}${bar("B · NASA POWER", "var(--b)", r.b, r.lim)}</div>
       <div class="why">${why(r)}</div>
-      <div class="links">${link("bought", r.e.buy)}${(r.e.settle || []).map((h, k) => link(k ? "retry" : `settle · jobs ${r.p.jobA} & ${r.p.jobB}`, h)).join("")}${r.p.jobA ? `<a href="https://devnode.telegraphprotocol.com/engine/v1/job/${r.p.jobA}/result" target="_blank" rel="noopener">Telegraph record job ${r.p.jobA}</a><a href="https://devnode.telegraphprotocol.com/engine/v1/job/${r.p.jobB}/result" target="_blank" rel="noopener">Telegraph record job ${r.p.jobB}</a>` : ""}${link("finalized", r.e.final)}${link("reviewed", r.e.review)}</div>
+      <div class="links">${link("bought", r.e.buy)}${(r.e.settle || []).map((h, i) => link(i ? "settle again" : "settle", h)).join("")}${(r.e.retry || []).map((h) => link("source failed → retry", h)).join("")}${(r.e.wrong || []).map((h) => link("wrong miner → rebuy", h)).join("")}${r.p.jobA ? rec(r.p.jobA) + rec(r.p.jobB) : ""}${link("finalized", r.e.final)}</div>
     </div>`).join("") || `<p class="sub">No policies yet.</p>`;
   $("updated").textContent = `Updated ${new Date().toLocaleTimeString()}.`;
 }

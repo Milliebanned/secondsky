@@ -11,7 +11,8 @@ import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
 import { sepolia } from "viem/chains";
 
 const RPC = "https://ethereum-sepolia-rpc.publicnode.com";
-const dep = JSON.parse(readFileSync(new URL("../deployment.json", import.meta.url), "utf8"));
+const V2 = process.env.DEP !== "v1";   // default v2; DEP=v1 for the first deployment
+const dep = JSON.parse(readFileSync(new URL(V2 ? "../deployment-v2.json" : "../deployment.json", import.meta.url), "utf8"));
 const envPath = new URL("../.env", import.meta.url);
 const env = () => Object.fromEntries(readFileSync(envPath, "utf8").split("\n").filter((l) => l.includes("="))
   .map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim()]));
@@ -20,7 +21,7 @@ const pub = createPublicClient({ chain: sepolia, transport: http(RPC) });
 const wal = (a) => createWalletClient({ account: a, chain: sepolia, transport: http(RPC) });
 const erc = parseAbi(["function mint(address,uint256)", "function approve(address,uint256) returns (bool)", "function balanceOf(address) view returns (uint256)"]);
 const S = { address: dep.address, abi: dep.abi };
-const STATUS = ["None", "Active", "Settling", "Paid", "NotPaid", "Disputed", "Refunded"];
+const STATUS = V2 ? ["None", "Active", "Settling", "Paid", "PaidHalf", "NotPaid", "Refunded"] : ["None", "Active", "Settling", "Paid", "NotPaid", "Disputed", "Refunded"];
 const tx = (h) => `https://sepolia.etherscan.io/tx/${h}`;
 
 async function send(a, c, functionName, args) {
@@ -31,7 +32,8 @@ async function send(a, c, functionName, args) {
 }
 
 const [cmd, ...args] = process.argv.slice(2);
-const operator = acct(env().OPERATOR_KEY);
+const operator = acct(env().OPERATOR_KEY);          // v1 owner+signer; v2: pays gas for settle only
+const signer = V2 ? acct(env().HOT_KEY) : operator;  // who signs quotes
 
 if (cmd === "setup") {
   if (env().HOLDER_KEY) { console.log("holder already exists:", acct(env().HOLDER_KEY).address); process.exit(0); }
@@ -50,7 +52,7 @@ if (cmd === "setup") {
   const q = { location, date, settleAfter: BigInt(now), thresholdE6: BigInt(Math.round(Number(limitMm) * 1e6)),
     payout: BigInt(Math.round(Number(payout) * 1e6)), premium: BigInt(Math.round(Number(premium) * 1e6)), expiry: BigInt(now + 1800) };
   const hash = await pub.readContract({ ...S, functionName: "quoteHash", args: [holder.address, q.location, q.date, q.settleAfter, q.thresholdE6, q.payout, q.premium, q.expiry] });
-  const sig = await operator.signMessage({ message: { raw: hash } });   // underwriter signs the quote
+  const sig = await signer.signMessage({ message: { raw: hash } });   // underwriter signs the quote
   const { h } = await send(holder, S, "buyCover", [q.location, q.date, q.settleAfter, q.thresholdE6, q.payout, q.premium, q.expiry, sig]);
   const id = await pub.readContract({ ...S, functionName: "policyCount" });
   console.log(`policy #${id} bought: ${location} ${date}, pays ${payout} USDC if rain >= ${limitMm} mm, premium ${premium} USDC\n  ${tx(h)}`);
@@ -58,6 +60,10 @@ if (cmd === "setup") {
   const { h } = await send(operator, S, "settle", [BigInt(args[0])]);
   const p = await pub.readContract({ ...S, functionName: "getPolicy", args: [BigInt(args[0])] });
   console.log(`policy #${args[0]} settling: Telegraph job ${p.jobA} -> source A (${dep.sourceA}), job ${p.jobB} -> source B (${dep.sourceB})\n  ${tx(h)}`);
+} else if (cmd === "approve") {
+  const holder = acct(env().HOLDER_KEY);
+  await send(holder, { address: dep.usdc, abi: erc }, "approve", [dep.address, 2n ** 255n]);
+  console.log("holder approved", dep.address);
 } else if (cmd === "status") {
   const id = BigInt(args[0]);
   const p = await pub.readContract({ ...S, functionName: "getPolicy", args: [id] });
@@ -70,6 +76,13 @@ if (cmd === "setup") {
   };
   console.log(`#${id} ${p.location} ${p.date} limit ${Number(p.thresholdE6) / 1e6} mm payout ${Number(p.payout) / 1e6} — ${STATUS[p.status]}`);
   console.log(`  job ${p.jobA} (A ${dep.sourceA}): ${await ans(p.jobA)}   job ${p.jobB} (B ${dep.sourceB}): ${await ans(p.jobB)}`);
+} else if (cmd === "finalize" && V2) {
+  // v2: go through the keeper, which checks Telegraph's job records before finalizing
+  const r = await (await fetch(`https://secondsky-phi.vercel.app/api/keeper?policy=${args[0]}`)).json();
+  console.log(JSON.stringify(r));
+  if (r.result?.tx) await pub.waitForTransactionReceipt({ hash: r.result.tx });
+  const p = await pub.readContract({ ...S, functionName: "getPolicy", args: [BigInt(args[0])] });
+  console.log(`policy #${args[0]} -> ${STATUS[p.status]}`);
 } else if (cmd === "finalize") {
   const id = BigInt(args[0]);
   const { h } = await send(operator, S, "finalize", [id]);

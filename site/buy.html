@@ -94,18 +94,18 @@ button:disabled{opacity:.45;cursor:not-allowed}
   <div class="bars" id="pbars"></div>
   <div class="log" id="log"></div>
   <button id="settle" hidden>Settle now: buy both answers from Telegraph</button>
-  <button id="finalize" hidden>Finalize</button>
+  <button id="finalize" hidden>Finish: check the records and pay out</button>
   <div class="err" id="perr"></div>
 </div>
 
-<p class="note">The price comes from 10 years of rain history at that spot. The underwriter signs it and the contract checks the signature. Settling buys two Telegraph jobs (1 USDC each, from the pool): one from an Open-Meteo miner, one from a NASA POWER miner. If they disagree about your limit, nothing is paid automatically. A replay costs the payout plus 2 USDC, so it can never make money. It exists so you can watch a whole settlement today.</p>
+<p class="note">The price comes from 10 years of rain history at that spot. The underwriter signs it and the contract checks the signature. Settling buys two Telegraph jobs (1 USDC each, from the pool): one from an Open-Meteo miner, one from a NASA POWER miner. Both reach your limit: 100% paid. They split: 50%. Neither: 0. No person decides. The cover price uses 10 years of both sources at that spot, so the split rule is priced in. A replay costs the payout plus 2 USDC, so it can never make money. It exists so you can watch a whole settlement today.</p>
 </div>
 
 <script type="module">
 import { createPublicClient, createWalletClient, custom, http, parseAbi, formatUnits } from "https://esm.sh/viem@2.21.0";
 import { sepolia } from "https://esm.sh/viem@2.21.0/chains";
 
-const ADDR = "0x75e0129d3c30045d72a90676f24a63e2a1e6752f";
+const ADDR = "0x0136e904ef5df658588c84d95f520a338b3bbcff"; // SecondSky v2
 const USDC = "0xcc194e1a843B658526D0D5C431f670028582Ae17";
 const ES = "https://sepolia.etherscan.io";
 const abi = parseAbi([
@@ -120,8 +120,8 @@ const erc = parseAbi(["function mint(address,uint256)", "function approve(addres
 const pub = createPublicClient({ chain: sepolia, transport: http("https://ethereum-sepolia-rpc.publicnode.com") });
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-const STATUS = ["None","Active","Settling","Paid","NotPaid","Disputed","Refunded"];
-const TEXT = { Active:"Bought. Waiting for its settle time.", Settling:"Settling: waiting for Telegraph to deliver both answers (usually 5–15 minutes).", Paid:"Paid: both sources recorded at least your limit.", NotPaid:"Not paid: both sources recorded less than your limit.", Disputed:"Disputed: the two sources disagree about your limit, so the contract did not pay automatically.", Refunded:"Refunded." };
+const STATUS = ["None","Active","Settling","Paid","PaidHalf","NotPaid","Refunded"];
+const TEXT = { Active:"Bought. Waiting for its settle time.", Settling:"Settling: waiting for Telegraph to deliver both answers (usually 5–15 minutes).", Paid:"Paid 100%: both sources recorded at least your limit.", PaidHalf:"Paid 50%: one source recorded your limit and the other did not.", NotPaid:"Not paid: both sources recorded less than your limit.", Refunded:"Refunded." };
 let wallet, me, mode = "cover", place = null, q = null, policyId = null, timer = null;
 
 const log = (html) => { const d = document.createElement("div"); d.innerHTML = html; $("log").prepend(d); };
@@ -250,11 +250,18 @@ $("settle").onclick = async () => {
   } catch (e) { $("perr").textContent = errMsg(e); }
   $("settle").disabled = false;
 };
+// Finishing goes through the keeper: it checks Telegraph's job records that the named miners answered,
+// then finalizes (or sends the policy back to be bought again). Anyone can also call finalize() directly
+// from their own wallet one day after the answers arrive.
 $("finalize").onclick = async () => {
   $("perr").textContent = ""; $("finalize").disabled = true;
   try {
-    const h = await wallet.writeContract({ account: me, address: ADDR, abi, functionName: "finalize", args: [policyId] });
-    await pub.waitForTransactionReceipt({ hash: h }); log(txLink("Finalized", h)); await refreshWallet(); await showPolicy();
+    const r = await fetch(`/api/keeper?policy=${policyId}`).then((r) => r.json());
+    const x = r.result;
+    if (x && x.tx) { await pub.waitForTransactionReceipt({ hash: x.tx }); log(txLink(x.action === "finalize" ? "Checked Telegraph's records and finalized" : `Job ${x.job} was answered by ${x.answeredBy}, not the named miner: sent back to be bought again`, x.tx)); }
+    else if (x && x.waiting) $("perr").textContent = x.waiting + ". Try again in a minute.";
+    else if (r.note) $("perr").textContent = r.note;
+    await refreshWallet(); await showPolicy();
   } catch (e) { $("perr").textContent = errMsg(e); }
   $("finalize").disabled = false;
 };
