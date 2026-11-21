@@ -53,7 +53,12 @@ export default async function handler(req, res) {
   if (one !== undefined) {
     const id = Number(one);
     if (!Number.isInteger(id) || id < 1 || BigInt(id) > (await read("policyCount"))) return res.status(400).json({ error: "unknown policy" });
-    try { return res.status(200).json({ result: await step(V2, id, ctx) }); }
+    try {
+      const result = await step(V2, id, ctx);
+      // wait for it to land, so the next call (often from the same page) gets a fresh nonce
+      if (result && result.tx) await pub.waitForTransactionReceipt({ hash: result.tx, timeout: 45_000 }).catch(() => {});
+      return res.status(200).json({ result });
+    }
     catch (e) { return res.status(200).json({ result: null, note: (e.shortMessage || e.message || "").slice(0, 160) }); }
   }
 
