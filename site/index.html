@@ -210,7 +210,7 @@ async function load() {
       <span class="badge b-${r.st}">${LABEL[r.st] || r.st}</span></div>
       <div class="bars">${bar("A · Open-Meteo", "var(--a)", r.a, r.lim)}${bar("B · NASA POWER", "var(--b)", r.b, r.lim)}</div>
       <div class="why">${why(r)}</div>
-      <div class="links">${link("bought", r.e.buy)}${(r.e.settle || []).map((h, k) => link(k ? "retry" : `settle · jobs ${r.p.jobA} & ${r.p.jobB}`, h)).join("")}${link("finalized", r.e.final)}${link("reviewed", r.e.review)}</div>
+      <div class="links">${link("bought", r.e.buy)}${(r.e.settle || []).map((h, k) => link(k ? "retry" : `settle · jobs ${r.p.jobA} & ${r.p.jobB}`, h)).join("")}${r.p.jobA ? `<a href="https://devnode.telegraphprotocol.com/engine/v1/job/${r.p.jobA}/result" target="_blank" rel="noopener">Telegraph record job ${r.p.jobA}</a><a href="https://devnode.telegraphprotocol.com/engine/v1/job/${r.p.jobB}/result" target="_blank" rel="noopener">Telegraph record job ${r.p.jobB}</a>` : ""}${link("finalized", r.e.final)}${link("reviewed", r.e.review)}</div>
     </div>`).join("") || `<p class="sub">No policies yet.</p>`;
   $("updated").textContent = `Updated ${new Date().toLocaleTimeString()}.`;
 }
