@@ -4,12 +4,12 @@
 //                         without waiting for the cron. It can only do what the contract rules allow.
 //
 // For each policy:
-//   Active and due                 -> settle()  (the contract buys both answers from Telegraph)
+//   Active and due                 -> settle() once NASA POWER has published that day (the contract buys both answers from Telegraph)
 //   Settling, both answers in      -> v2: check Telegraph's job records that the NAMED miner answered each job.
 //                                         wrong miner -> rejectWrongMiner() (back to Active, bought again)
 //                                         right miners -> finalize() at once (operator)
 //                                     v1: finalize()  (open to anyone)
-import { V1, V2, abi, read, pub, hot, minerAddress, jobMiner } from "./_lib.js";
+import { V1, V2, abi, read, pub, hot, minerAddress, jobMiner, nasaReady } from "./_lib.js";
 
 const ACTIVE = 1, SETTLING = 2;
 const done = (v) => (v >> 255n) === 1n;
@@ -20,6 +20,7 @@ async function step(address, id, ctx) {
   const tx = (functionName, args) => ctx.wallet.writeContract({ address, abi, functionName, args, nonce: ctx.nonce++ });
 
   if (p.status === ACTIVE && now >= p.settleAfter) {
+    if (!(await nasaReady(p.location, p.date))) return { id, waiting: `NASA POWER has not published ${p.date} yet; not buying answers until it has` };
     await pub.simulateContract({ address, abi, functionName: "settle", args: [BigInt(id)], account: ctx.account });
     return { id, contract: address === V2 ? "v2" : "v1", action: "settle", tx: await tx("settle", [BigInt(id)]) };
   }

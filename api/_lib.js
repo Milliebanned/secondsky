@@ -46,3 +46,14 @@ export async function jobMiner(jobId) {
   const j = await r.json();
   return { address: (j.miner_address || "").toLowerCase() || null, slug: j.miner_slug || null };
 }
+
+// Source B is our NASA POWER miner. NASA publishes a few days late; buying the answer before then makes
+// Telegraph reroute the job to another miner (see RECEIPTS.md, job 14) and wastes the job fee.
+// So the keeper asks the same endpoint first, for free, and only settles once it would answer.
+export const NASA = "https://secondsky-nasa.vercel.app/api/verify";
+export async function nasaReady(location, date) {
+  try {
+    const r = await fetch(`${NASA}?location=${encodeURIComponent(location)}&date=${encodeURIComponent(date)}`, UA);
+    return r.status === 200;
+  } catch { return false; }
+}
