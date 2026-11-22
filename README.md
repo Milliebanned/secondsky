@@ -15,6 +15,8 @@ It pays by rule, with no person in the claim:
 
 Why the 50% rule: over a year in 10 cities, on days when at least one source reached 10 mm, the two disagreed **64%** of the time. A contract that trusts one source pays on that source's luck. See [`scripts/agreement_study.py`](scripts/agreement_study.py).
 
+**Checking our work?** Start with [JUDGES.md](JUDGES.md) or the [guide](https://secondsky.milliebanned.xyz/guide.html).
+
 **Live:** https://secondsky.milliebanned.xyz (numbers read from the chain) · **Buy or replay:** https://secondsky.milliebanned.xyz/buy.html
 
 Status: Telegraph Hackathon Season II, Mission 06 (Resources & Agriculture). **Sepolia testnet, test USDC.**
@@ -42,6 +44,7 @@ Status: Telegraph Hackathon Season II, Mission 06 (Resources & Agriculture). **S
 | Path | What |
 |---|---|
 | `contracts/SecondSkyV2.sol` | The cover contract |
+| `scripts/verify-policy.mjs` | Read-only: check any policy against the contract and Telegraph's job records |
 | `scripts/test-secondsky-v2.mjs` | 50 local checks: payout rules, retry, wrong-miner, finalize window, role limits, refund, accounting, callback gas |
 | `api/quote.js` | Prices a day from 10 years of both sources at that spot and signs the quote |
 | `contracts/ForecastLog.sol`, `api/forecasts.js` | Forecast vs recorded: the forecast is bought on-chain the morning before, then scored against the two records (rain call, Brier, high/low error, hours of warning) |

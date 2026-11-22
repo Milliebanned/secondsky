@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Try SecondSky</title>
+<meta name="description" content="Try SecondSky in five minutes with free test money, check every settlement yourself without trusting us, and try to break it.">
+<meta name="theme-color" content="#0c0e0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230c0e0d'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23ff5a1f' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ss.css">
+<style>
+.g-hero{position:relative;height:84vh;height:84svh;min-height:540px;overflow:hidden;background:#11161a;isolation:isolate}
+.g-hero .lay{position:absolute;inset:-3%;will-change:transform}
+.g-hero .lay img{width:100%;height:100%;object-fit:cover;object-position:50% 42%}
+.g-hero .bg img{filter:brightness(.62) saturate(.8)}
+.g-hero .fg img{filter:brightness(.92) saturate(.95) drop-shadow(0 30px 30px rgba(0,0,0,.35))}
+.g-word{position:absolute;left:50%;transform:translateX(-50%);margin:0;font:900 200px/.8 var(--f);font-stretch:125%;letter-spacing:-.025em;color:var(--bone);white-space:nowrap;text-transform:uppercase}
+.g-hero .shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top, rgba(8,10,12,.9), rgba(8,10,12,.3) 40%, transparent 60%), linear-gradient(to bottom, rgba(8,10,12,.55), transparent 22%)}
+.g-cap{position:absolute;left:var(--gut);right:var(--gut);bottom:40px;z-index:3;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 40px;align-items:end}
+.g-cap h1{margin:0 0 12px;font:800 clamp(30px,3.6vw,52px)/.95 var(--f);font-stretch:112%;text-transform:uppercase;letter-spacing:-.01em;text-shadow:0 2px 24px rgba(0,0,0,.6)}
+.g-cap p{margin:0;font:500 clamp(16px,1.4vw,19px)/1.4 var(--f);max-width:36em;color:rgba(243,239,230,.88);text-shadow:0 1px 14px rgba(0,0,0,.6)}
+.jump{display:flex;flex-direction:column;gap:10px;font:500 12px/1 var(--m);letter-spacing:.1em;text-transform:uppercase}
+.jump a{text-decoration:none;display:flex;gap:14px;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(243,239,230,.3)}
+.jump a b{color:var(--vest);font-weight:500}
+.jump a:hover{border-bottom-color:var(--vest)}
+
+.pad{padding:clamp(80px,10vw,140px) var(--gut)}
+.wrapn{max-width:1100px}
+.do{list-style:none;margin:0;padding:0;border-top:2px solid var(--paper-ink)}
+.do > li{display:grid;grid-template-columns:76px minmax(0,1fr) 150px;gap:0 24px;padding:28px 0;border-bottom:1px solid var(--paper-line)}
+.do .n{font:800 46px/.85 var(--f);font-stretch:68%}
+.do h3{margin:2px 0 10px;font:800 22px/1.1 var(--f);font-stretch:112%;text-transform:uppercase}
+.do p{margin:0 0 8px;color:#3b3a34;max-width:62ch}
+.do .see{display:block;margin-top:10px;font:400 13px/1.5 var(--m);color:var(--paper-mute);border-left:2px solid var(--paper-line);padding-left:12px}
+.do .see b{color:var(--paper-ink);font-weight:500}
+.do .t{text-align:right;font:500 12px/1.4 var(--m);letter-spacing:.06em;text-transform:uppercase;color:var(--paper-mute)}
+.do .t b{display:block;font:800 26px/1 var(--f);font-stretch:68%;color:var(--paper-ink);letter-spacing:0}
+.costs{display:grid;grid-template-columns:repeat(3,1fr);margin-top:40px;border-top:2px solid var(--paper-ink)}
+.costs div{padding:20px 20px 20px 0;border-bottom:1px solid var(--paper-line)}
+.costs div + div{padding-left:20px;border-left:1px solid var(--paper-line)}
+.costs b{display:block;font:800 36px/.9 var(--f);font-stretch:68%}
+.costs span{display:block;margin-top:8px;font:500 11.5px/1.35 var(--m);letter-spacing:.05em;text-transform:uppercase;color:var(--paper-mute)}
+
+.checks{display:grid;gap:0;border-top:1px solid var(--line)}
+.check{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:28px 48px;padding:34px 0;border-bottom:1px solid var(--line)}
+.check h3{margin:0 0 10px;font:800 21px/1.15 var(--f);font-stretch:112%;text-transform:uppercase}
+.check h3 span{display:block;font:500 12px/1 var(--m);color:var(--vest);letter-spacing:.12em;margin-bottom:10px}
+.check p{margin:0 0 10px;color:rgba(243,239,230,.8);font-size:15.5px}
+.check a{color:var(--bone)}
+pre{margin:0;overflow-x:auto;background:#050607;border:1px solid var(--line);padding:16px 18px;font:400 12.5px/1.6 var(--m);color:#d9d6cc}
+pre .c{color:#8a8f88}
+pre .ok{color:#8fd19e}
+.check .out{margin-top:10px}
+.check .out pre{background:transparent;border-style:dashed;color:#b9bdb5}
+
+.break{list-style:none;margin:0;padding:0;border-top:2px solid var(--paper-ink)}
+.break li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 40px;padding:20px 0;border-bottom:1px solid var(--paper-line)}
+.break b{font:700 17px/1.3 var(--f)}
+.break span{color:#3b3a34}
+.break code{font:500 13px/1 var(--m);background:var(--paper-2);padding:3px 6px}
+.share{margin-top:48px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.share .btn-line{font:700 13px/1 var(--f);letter-spacing:.1em;text-transform:uppercase;padding:16px 22px;border:1.5px solid var(--paper-ink);color:var(--paper-ink);text-decoration:none}
+.share .btn-line:hover{background:var(--paper-ink);color:var(--paper)}
+
+@media (max-width:900px){
+  .g-cap{grid-template-columns:1fr}
+  .do > li{grid-template-columns:52px minmax(0,1fr)}
+  .do .t{grid-column:2;text-align:left;margin-top:10px}
+  .do .t b{display:inline;margin-right:8px}
+  .check{grid-template-columns:1fr}
+  .break li{grid-template-columns:1fr}
+  .costs{grid-template-columns:1fr}
+  .costs div + div{padding-left:0;border-left:0}
+}
+</style>
+</head>
+<body>
+<nav class="nav" id="nav">
+  <a class="mark" href="/" aria-label="SecondSky home">Second<span>Sky</span></a>
+  <div class="nav-links">
+    <a href="/#work">Who it's for</a>
+    <a href="/#ledger">Ledger</a>
+    <a href="/operators.html">Operators</a>
+    <a href="/guide.html" aria-current="page">Try it</a>
+  </div>
+  <a class="nav-cta" href="/buy.html">Cover a day</a>
+</nav>
+
+<header class="g-hero" id="hero">
+  <div class="lay bg"><img src="/media/pour.jpg" alt="" width="2200" height="1468"></div>
+  <div class="lay word" aria-hidden="true"><div class="g-word" id="gWord">Try</div></div>
+  <div class="lay fg"><img src="/media/pour-cut.webp" alt="A crew pouring concrete" width="2200" height="1468"></div>
+  <div class="shade"></div>
+  <div class="g-cap">
+    <div>
+      <h1>Try it in five minutes.<br>Then check our work.</h1>
+      <p>Everything here runs on Sepolia testnet with free test money. You can watch a real settlement, read every record it used, and try to break it.</p>
+    </div>
+    <nav class="jump" aria-label="On this page">
+      <a href="#try"><b>01</b>Try it with test money</a>
+      <a href="#check"><b>02</b>Check it without trusting us</a>
+      <a href="#break"><b>03</b>Try to break it</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================================================ 01 TRY -->
+<section class="paper" id="try">
+  <div class="wrapn">
+    <header class="sec-head dark">
+      <span class="sec-no">01</span>
+      <h2>Try it with<br>test money</h2>
+      <p>You need a browser wallet, such as MetaMask or Rabby. The quickest real result is a <b>replay</b>: pick a day that already happened and watch the contract settle it from two independent records.</p>
+    </header>
+    <ol class="do">
+      <li><span class="n">01</span><div><h3>Get free Sepolia ETH</h3><p>Every transaction needs a little ETH for gas, even getting test USDC. Ask a faucet for some, for example <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">Google's Sepolia faucet</a>.</p><span class="see">You will see: <b>0.05 Sepolia ETH</b> or so in your wallet. That is plenty.</span></div><span class="t"><b>1 min</b>free</span></li>
+      <li><span class="n">02</span><div><h3>Connect and get test USDC</h3><p>Open <a href="/buy.html">Cover a day</a>, press <b>Connect wallet</b>, then <b>Get 50 test USDC</b> and approve it in your wallet.</p><span class="see">You will see: <b>Connected · Sepolia</b>, your address, and <b>50.00 test USDC</b>.</span></div><span class="t"><b>1 min</b>one transaction</span></li>
+      <li><span class="n">03</span><div><h3>Replay a past day</h3><p>Choose <b>Replay a past day</b>. Type a town and pick it from the list. Pick a day at least 5 days ago (NASA publishes late). Set a rain limit, for example 5 mm. Press <b>Get a price</b>, then <b>Approve and buy</b>.</p><span class="see">A replay costs the payout plus 2 USDC, so it can never make money. It exists so you can watch a full settlement today. For a real future day, use <b>A future day</b> instead.</span></div><span class="t"><b>1 min</b>two transactions</span></li>
+      <li><span class="n">04</span><div><h3>Settle it</h3><p>Press <b>Settle now</b>. The contract itself buys two answers from Telegraph: one from an Open-Meteo miner and one from our NASA POWER miner.</p><span class="see">You will see: <b>Settling</b>, with two Telegraph job numbers. Answers usually arrive in <b>about 8 minutes</b>.</span></div><span class="t"><b>~8 min</b>waiting on Telegraph</span></li>
+      <li><span class="n">05</span><div><h3>Finish and see the result</h3><p>When both bars show a number, press <b>Finish</b>. The keeper checks Telegraph's own records that the named miners really answered, then the contract pays by the rule.</p><span class="see">You will see one of: <b>Paid 100%</b> (both reached your limit), <b>Paid 50%</b> (they split), or <b>Not paid</b> (neither did). Each step links to its transaction.</span></div><span class="t"><b>1 min</b>done</span></li>
+    </ol>
+    <div class="costs">
+      <div><b>0</b><span>real money spent<br>everything is testnet</span></div>
+      <div><b>~12 min</b><span>start to finish<br>most of it Telegraph answering</span></div>
+      <div><b>2 USDC</b><span>of evidence per settlement<br>paid from the pool, not by you</span></div>
+    </div>
+    <div class="share">
+      <a class="btn-solid" href="https://github.com/Milliebanned/secondsky/issues/new?title=Tester%20report&body=Policy%20number%3A%0APlace%20and%20day%3A%0AWhat%20happened%3A%0AHow%20long%20it%20took%3A%0AAnything%20confusing%20or%20broken%3A">Share what happened</a>
+      <a class="btn-line" href="/buy.html">Open Cover a day</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 02 CHECK -->
+<section class="pad" id="check" style="background:var(--ink)">
+  <div class="wrapn">
+    <header class="sec-head light">
+      <span class="sec-no">02</span>
+      <h2>Check it without<br>trusting us</h2>
+      <p>Every number on this site comes from a contract or from Telegraph's own records. These checks need only Node.js, and the first one needs no install at all.</p>
+    </header>
+    <div class="checks">
+      <article class="check">
+        <div><h3><span>Check 1 · no install</span>Read a job straight from Telegraph</h3><p>Every answer the contract paid on has a public record at Telegraph. It names the miner that answered and holds the raw answer. Open one in your browser: <a href="https://devnode.telegraphprotocol.com/engine/v1/job/12/result" target="_blank" rel="noopener">job 12</a>, the NASA answer behind the Lagos 50% payout.</p></div>
+        <div><pre><span class="c"># or from a terminal</span>
+curl -A check https://devnode.telegraphprotocol.com/engine/v1/job/12/result</pre>
+          <div class="out"><pre>"miner_slug":"secondsky-nasa-rainfall",
+"precipitation_mm":2.65, ...</pre></div></div>
+      </article>
+      <article class="check">
+        <div><h3><span>Check 2 · read-only script</span>Verify any policy end to end</h3><p>This reads the policy from the contract, the two answers Telegraph delivered on-chain, and Telegraph's record of who answered each job. Then it applies the payout rule itself and says whether the contract did the same. No keys, no transactions.</p></div>
+        <div><pre>git clone https://github.com/Milliebanned/secondsky
+cd secondsky/scripts && npm install
+node verify-policy.mjs 1</pre>
+          <div class="out"><pre>policy #1  6.4541,3.3947  2026-11-10
+  source A: job 11 ... 17.6 mm
+    answered by oathcast-forecast-verify (the named miner)
+  source B: job 12 ... 2.65 mm
+    answered by secondsky-nasa-rainfall (the named miner)
+  the rule says: PaidHalf (10 USDC)
+  the contract did: PaidHalf  ->  <span class="ok">MATCHES</span></pre></div></div>
+      </article>
+      <article class="check">
+        <div><h3><span>Check 3 · local chain</span>Run the contract's tests</h3><p>50 checks on a local chain: the payout rule, retries, the wrong-miner path, the finalize window, what each role can and cannot do, refunds, accounting, and the gas the Telegraph callback uses.</p></div>
+        <div><pre><span class="c"># terminal 1</span>
+cd secondsky/scripts
+npx hardhat node --port 8545 --config hardhat.config.cjs
+<span class="c"># terminal 2</span>
+node test-secondsky-v2.mjs</pre>
+          <div class="out"><pre>  callback gas estimate: 49708
+  ✓ callback under 200k gas
+
+<span class="ok">50 passed, 0 failed</span></pre></div></div>
+      </article>
+      <article class="check">
+        <div><h3><span>Check 4 · public data</span>Repeat the disagreement study</h3><p>It pulls a year of daily rainfall for 10 cities from both public sources, with no keys, and counts how often they split. This is why the contract pays 50% on a split.</p></div>
+        <div><pre>python3 scripts/agreement_study.py</pre>
+          <div class="out"><pre>limit  5 mm: split 569 (55% of days where at least one says wet)
+limit 10 mm: split 375 (64%)
+limit 20 mm: split 161 (73%)</pre></div></div>
+      </article>
+      <article class="check">
+        <div><h3><span>Check 5 · our source</span>Ask our NASA miner directly</h3><p>Source B is our own Telegraph miner. You can call the same endpoint Telegraph calls. For a day that is not over yet, it refuses instead of guessing.</p></div>
+        <div><pre>curl "https://secondsky-nasa.vercel.app/api/verify?location=Nairobi&amp;date=2026-11-05"</pre>
+          <div class="out"><pre>NASA POWER records 0.61 mm of precipitation, a high of
+29.09°C and a low of 16.05°C for Nairobi, Kenya on 2026-11-05</pre></div></div>
+      </article>
+      <article class="check">
+        <div><h3><span>Check 6 · the failure we caught</span>See Telegraph reroute a job</h3><p>Job 14 was bought for our NASA miner, on a day NASA had not published yet. Telegraph's record shows a different miner answered it. The keeper caught it and sent the policy back. Nobody was paid on one source counted twice.</p></div>
+        <div><pre>node verify-policy.mjs 2   <span class="c"># London, bought again after the catch</span>
+curl -A check https://devnode.telegraphprotocol.com/engine/v1/job/14/result</pre>
+          <div class="out"><pre>"miner_slug":"oathcast-forecast-verify"   <span class="c"># not the named NASA miner</span></pre></div></div>
+      </article>
+    </div>
+    <p class="work-foot">The full list of every transaction and job is in <a href="https://github.com/Milliebanned/secondsky/blob/main/RECEIPTS.md">RECEIPTS.md</a>. The contracts' source is verified on Sourcify: <a href="https://repo.sourcify.dev/11155111/0x0136E904eF5dF658588c84d95F520A338b3BBcfF">SecondSky v2</a> and <a href="https://repo.sourcify.dev/11155111/0x846f58e93abe4f25b843d75f6f767123e75adebf">ForecastLog</a>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 03 BREAK -->
+<section class="paper alt" id="break">
+  <div class="wrapn">
+    <header class="sec-head dark">
+      <span class="sec-no">03</span>
+      <h2>Try to break it</h2>
+      <p>These should all fail safely. If one does not, that is a real bug, and we want to hear about it.</p>
+    </header>
+    <ul class="break">
+      <li><b>Settle a future day before it is over.</b><span>The contract refuses with <code>too early</code>. Our NASA miner also refuses a day that has not ended, with <code>window_not_finished</code>.</span></li>
+      <li><b>Buy with a price older than 15 minutes.</b><span>Refused with <code>quote expired</code>. Each signed price can be used once: <code>quote used</code>.</span></li>
+      <li><b>Change the price, payout or place in the transaction.</b><span>The signature no longer matches: <code>bad quote signature</code>.</span></li>
+      <li><b>Finalize before both answers arrive.</b><span>Refused with <code>waiting for answers</code>.</span></li>
+      <li><b>Finalize from your own wallet straight after the answers land.</b><span>Anyone can finalize, but only one day after the last answer: <code>operator check window</code>. That day lets the keeper check that the named miners really answered.</span></li>
+      <li><b>Ask for a payout above the cap.</b><span>Refused with <code>payout above cap</code> (50 test USDC while on testnet).</span></li>
+      <li><b>Leave a policy unsettled.</b><span>After 7 days the buyer can take the premium back. Before that: <code>grace period not over</code>.</span></li>
+      <li><b>Pick a place where one source has no data.</b><span>A failed answer sends the policy back to be bought again; the contract never pays on a failed answer. If Telegraph quietly gives the job to another miner instead, the keeper sees it in Telegraph's record and sends it back, within the one-day window above.</span></li>
+    </ul>
+    <div class="share">
+      <a class="btn-solid" href="https://github.com/Milliebanned/secondsky/issues/new?title=Found%20a%20problem&body=What%20I%20tried%3A%0AWhat%20I%20expected%3A%0AWhat%20happened%20(transaction%20or%20policy%20link)%3A">Report what you found</a>
+      <a class="btn-line" href="/">Back to the live ledger</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-top"><a class="mark big" href="/">Second<span>Sky</span></a><a class="btn-solid" href="/buy.html">Cover a day</a></div>
+  <p>Telegraph Hackathon Season II · Mission 06, Resources &amp; Agriculture. Ethereum Sepolia testnet, test USDC: no real money moves here.</p>
+  <p class="credits">Concrete pour: <a href="https://commons.wikimedia.org/wiki/File:Concrete_pouring_for_the_new_Spangdahlem_Elementary_School_(8062807).jpg">U.S. Air Force photo</a>, public domain; the cut-out is an adaptation.</p>
+</footer>
+
+<script>
+(() => {
+  const hero = document.getElementById("hero"), word = document.getElementById("gWord");
+  const lays = { bg: hero.querySelector(".bg"), word: hero.querySelector(".word"), fg: hero.querySelector(".fg") };
+  const IW = 2200, IH = 1468, POSY = 0.42;
+  function fit() {
+    const W = hero.clientWidth, H = hero.clientHeight;
+    word.style.fontSize = "200px";
+    const fs = Math.min(200 * (W * 0.62) / (word.scrollWidth || 1), H * 0.5 / 0.8);
+    word.style.fontSize = fs + "px";
+    const LW = W * 1.06, LH = H * 1.06, s = Math.max(LW / IW, LH / IH), rh = IH * s, top = -0.03 * H + (LH - rh) * POSY;
+    word.style.top = Math.max(H * 0.13, top + 0.3 * rh - fs * 0.42 + 0.03 * H) + "px";
+  }
+  addEventListener("resize", fit); if (document.fonts) document.fonts.ready.then(fit); fit();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let mx = 0, my = 0, tx = 0, ty = 0;
+  addEventListener("pointermove", (e) => { if (e.pointerType === "mouse") { mx = e.clientX / innerWidth * 2 - 1; my = e.clientY / innerHeight * 2 - 1; } }, { passive: true });
+  (function loop() {
+    tx += (mx - tx) * 0.07; ty += (my - ty) * 0.07;
+    const sc = Math.min(1, scrollY / innerHeight);
+    if (!reduce) {
+      // photo and cut-out move as one, so the crew never doubles; the word floats between them
+      const sub = `translate3d(${-tx * 26}px, ${-ty * 14 + sc * 40}px, 0) scale(${1 + sc * 0.05})`;
+      lays.bg.style.transform = sub; lays.fg.style.transform = sub;
+      lays.word.style.transform = `translate3d(${-tx * 12}px, ${-ty * 6 + sc * 90}px, 0) rotateY(${tx * -3}deg)`;
+    }
+    requestAnimationFrame(loop);
+  })();
+  const nav = document.getElementById("nav"), papers = [...document.querySelectorAll(".paper")];
+  const navState = () => {
+    const past = hero.getBoundingClientRect().bottom < 80;
+    nav.classList.toggle("solid", past);
+    nav.classList.toggle("on-paper", past && papers.some((s) => { const r = s.getBoundingClientRect(); return r.top < 40 && r.bottom > 40; }));
+  };
+  addEventListener("scroll", navState, { passive: true }); navState();
+})();
+</script>
+</body>
+</html>
