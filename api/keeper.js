@@ -4,12 +4,13 @@
 //                         without waiting for the cron. It can only do what the contract rules allow.
 //
 // For each policy:
+//   Active, the day before         -> buy Telegraph's forecast for the day (ForecastLog), once
 //   Active and due                 -> settle() once NASA POWER has published that day (the contract buys both answers from Telegraph)
 //   Settling, both answers in      -> v2: check Telegraph's job records that the NAMED miner answered each job.
 //                                         wrong miner -> rejectWrongMiner() (back to Active, bought again)
 //                                         right miners -> finalize() at once (operator)
 //                                     v1: finalize()  (open to anyone)
-import { V1, V2, abi, read, pub, hot, minerAddress, jobMiner, nasaReady } from "./_lib.js";
+import { V1, V2, abi, read, pub, hot, minerAddress, jobMiner, nasaReady, FORECAST, forecastAbi, forecastAsks } from "./_lib.js";
 
 const ACTIVE = 1, SETTLING = 2;
 const done = (v) => (v >> 255n) === 1n;
@@ -23,6 +24,17 @@ async function step(address, id, ctx) {
     if (!(await nasaReady(p.location, p.date))) return { id, waiting: `NASA POWER has not published ${p.date} yet; not buying answers until it has` };
     await pub.simulateContract({ address, abi, functionName: "settle", args: [BigInt(id)], account: ctx.account });
     return { id, contract: address === V2 ? "v2" : "v1", action: "settle", tx: await tx("settle", [BigInt(id)]) };
+  }
+  if (p.status === ACTIVE && address === V2 && ctx.cron) {
+    // The day before a covered day: buy Telegraph's forecast for it, once. Scored later against what was recorded.
+    const dayStart = Date.parse(p.date + "T00:00:00Z") / 1000;
+    const t = Number(now);
+    if (t < dayStart && dayStart - t <= 36 * 3600 && !(await forecastAsks(id)).length) {
+      const windowHours = Math.min(240, Math.ceil((dayStart + 86400 - t) / 3600));
+      await pub.simulateContract({ address: FORECAST, abi: forecastAbi, functionName: "ask", args: [BigInt(id), p.location, BigInt(windowHours)], account: ctx.account });
+      const h = await ctx.wallet.writeContract({ address: FORECAST, abi: forecastAbi, functionName: "ask", args: [BigInt(id), p.location, BigInt(windowHours)], nonce: ctx.nonce++ });
+      return { id, action: "forecast", windowHours, tx: h };
+    }
   }
   if (p.status !== SETTLING) return null;
   const [a, b] = await Promise.all([read("answers", [p.jobA], address), read("answers", [p.jobB], address)]);
@@ -65,6 +77,7 @@ export default async function handler(req, res) {
 
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.authorization !== `Bearer ${secret}`) return res.status(401).json({ error: "cron only (or pass ?policy=N)" });
+  ctx.cron = true;
   const results = [];
   for (const address of [V2, V1]) {
     const count = Number(await read("policyCount", [], address));

@@ -61,6 +61,12 @@ h2{font-size:20px;margin:44px 0 6px}
 .facts code,.mono{font-family:"JetBrains Mono",monospace;font-size:13px;word-break:break-all}
 a{color:var(--a)}
 .cta{display:inline-block;margin-top:18px;background:var(--wet);color:#fff;font-weight:600;padding:11px 16px;border-radius:10px;text-decoration:none}
+.fcwrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px}
+table.fc{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+table.fc th,table.fc td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+table.fc th{font:500 11px/1.3 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+table.fc tr:last-child td{border-bottom:0}
+.ok{color:var(--wet);font-weight:600}.bad{color:var(--dis);font-weight:600}
 footer{padding:40px 0 60px;color:var(--muted);font-size:13px}
 #err{color:var(--dis)}
 @media (max-width:560px){.bar{grid-template-columns:90px 1fr 60px}}
@@ -92,6 +98,11 @@ footer{padding:40px 0 60px;color:var(--muted);font-size:13px}
 <p id="err"></p>
 
 <div class="note"><b>What this is.</b> Testnet, test USDC. Most policies so far were bought by our own test wallet to exercise settlement against real recorded weather (replays of past days, which cost more than they can pay). They are not customers, and are labelled "our test" below.</div>
+
+<h2 id="forecast">Was the forecast right?</h2>
+<p class="sub">The morning before each covered day, the keeper buys Telegraph's forecast for that place (<span class="mono">WEATHER_FORECAST_GENERAL</span>, the network picks the miner) through <a href="https://sepolia.etherscan.io/address/0x846f58e93abe4f25b843d75f6f767123e75adebf" target="_blank" rel="noopener">ForecastLog</a>. When the day settles, it is scored against the two records the policy paid on. The forecast "said rain" at a peak chance of 50% or more, and the day "was wet" if the two records average 1 mm or more. The peak chance covers the whole window bought, which starts the day before, so it leans towards false alarms.</p>
+<div class="stats" id="fcStats"><div class="stat"><div class="k">Loading</div><div class="v">…</div></div></div>
+<div class="fcwrap"><table class="fc"><thead><tr><th>Policy</th><th>Place, day</th><th>Warning</th><th>Forecast</th><th>Recorded (A / B)</th><th>Score</th></tr></thead><tbody id="fcRows"></tbody></table></div>
 
 <h2 id="study">How often do two skies disagree?</h2>
 <p class="facts">We compared Open-Meteo and NASA POWER daily rainfall for 10 cities over a full year (Nov 2025 – Oct 2026, 3,650 city-days). On most days both are dry. But on days when at least one source reaches the limit, they often disagree:</p>
@@ -243,6 +254,36 @@ async function load() {
   $("updated").textContent = `Updated ${new Date().toLocaleTimeString()}.`;
 }
 load().catch((e) => { $("err").textContent = "Could not read the chain right now: " + (e.shortMessage || e.message); });
+</script>
+
+<script>
+(async () => {
+  const el = (id) => document.getElementById(id);
+  const esc = (x) => String(x ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+  const NAMES = {"6.4541,3.3947":"Lagos","-1.2833,36.8167":"Nairobi","51.5085,-0.1257":"London","6.2023,-1.668":"Obuasi"};
+  const job = (n) => `<a href="https://devnode.telegraphprotocol.com/engine/v1/job/${n}/result" target="_blank" rel="noopener">job ${n}</a>`;
+  try {
+    const d = await (await fetch("/api/forecasts")).json();
+    const s = d.summary || {};
+    const stat = (k, v, n) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`;
+    el("fcStats").innerHTML =
+      stat("Forecasts bought", s.forecasts ?? 0, "from Telegraph, 1 test USDC each") +
+      stat("Scored", s.scored ?? 0, "covered day settled") +
+      stat("Rain call right", s.rain_calls ? `${s.rain_calls_right}/${s.rain_calls}` : "–", "said rain vs was wet") +
+      stat("Brier score", s.mean_brier ?? "–", "0 perfect, 0.25 a coin flip") +
+      stat("High temp miss", s.mean_abs_high_error_c != null ? s.mean_abs_high_error_c + " °C" : "–", "average, either way") +
+      stat("Low temp miss", s.mean_abs_low_error_c != null ? s.mean_abs_low_error_c + " °C" : "–", "average, either way");
+    el("fcRows").innerHTML = (d.rows || []).map((r) => {
+      const f = r.forecast, rec = r.recorded, sc = r.score;
+      const fc = !r.answered ? "waiting for Telegraph" : !f ? "answered, record not published yet" :
+        `${f.chance_pct ?? "?"}% rain${f.rain_mm != null ? ", " + f.rain_mm + " mm" : ""} · ${f.high_c ?? "?"} / ${f.low_c ?? "?"} °C<br><span class="sub">${esc(r.answered_by)} · ${job(r.job)}</span>`;
+      const rc = rec ? `${rec.rain_a ?? "?"} / ${rec.rain_b ?? "?"} mm · ${rec.high_c ?? "?"} / ${rec.low_c ?? "?"} °C<br><span class="sub">${job(rec.jobA)} · ${job(rec.jobB)}</span>` : esc(r.note || "");
+      const scr = sc ? `<span class="${sc.rain_call_right ? "ok" : "bad"}">${sc.rain_call_right ? "right" : "wrong"}</span> (${sc.wet ? "wet" : "dry"}) · Brier ${sc.brier}<br>high ${sc.high_error_c > 0 ? "+" : ""}${sc.high_error_c} °C, low ${sc.low_error_c > 0 ? "+" : ""}${sc.low_error_c} °C` : "–";
+      const place = NAMES[r.location] || esc(r.location);
+      return `<tr><td>${r.policy ? "#" + r.policy : "test"}</td><td>${place}${r.date ? ", " + esc(r.date) : ""}</td><td>${r.warning_hours != null ? r.warning_hours + " h" : "–"}</td><td>${fc}</td><td>${rc}</td><td>${scr}</td></tr>`;
+    }).join("") || `<tr><td colspan="6" class="sub">No forecasts yet.</td></tr>`;
+  } catch (e) { el("fcStats").innerHTML = `<div class="stat"><div class="k">Forecasts</div><div class="v">–</div><div class="n">could not load</div></div>`; }
+})();
 </script>
 </body>
 </html>

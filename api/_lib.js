@@ -57,3 +57,22 @@ export async function nasaReady(location, date) {
     return r.status === 200;
   } catch { return false; }
 }
+
+// ForecastLog: buys a Telegraph WEATHER_FORECAST_GENERAL answer the day before a covered day.
+export const FORECAST = "0x846f58e93abe4f25b843d75f6f767123e75adebf";
+export const FORECAST_BLOCK = 12188612n;
+export const forecastAbi = parseAbi([
+  "function ask(uint256 policyId, string location, uint256 windowHours) returns (uint256)",
+  "function answers(uint256) view returns (uint256)",
+  "event Asked(uint256 indexed jobId, uint256 indexed policyId, string location, uint256 windowHours)",
+]);
+export async function forecastAsks(policyId) {
+  const logs = await pub.getContractEvents({ address: FORECAST, abi: forecastAbi, eventName: "Asked",
+    args: policyId === undefined ? {} : { policyId: BigInt(policyId) }, fromBlock: FORECAST_BLOCK });
+  return logs.map((l) => ({ jobId: l.args.jobId, policyId: l.args.policyId, location: l.args.location, windowHours: l.args.windowHours, block: l.blockNumber, tx: l.transactionHash }));
+}
+// Telegraph's full record of a job (raw answer included), or null.
+export async function jobRecord(jobId) {
+  const r = await fetch(`${DEVNODE}/engine/v1/job/${jobId}/result`, UA);
+  return r.ok ? r.json() : null;
+}

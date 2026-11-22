@@ -49,7 +49,9 @@ if (cmd === "setup") {
   const [location, date, limitMm, payout, premium] = args;
   const holder = acct(env().HOLDER_KEY);
   const now = Number((await pub.getBlock()).timestamp);
-  const q = { location, date, settleAfter: BigInt(now), thresholdE6: BigInt(Math.round(Number(limitMm) * 1e6)),
+  // a future day can only be settled after it is over everywhere (+14 h for the latest time zone)
+  const dayEnd = Date.parse(date + "T00:00:00Z") / 1000 + 86400 + 14 * 3600;
+  const q = { location, date, settleAfter: BigInt(Math.max(now, dayEnd)), thresholdE6: BigInt(Math.round(Number(limitMm) * 1e6)),
     payout: BigInt(Math.round(Number(payout) * 1e6)), premium: BigInt(Math.round(Number(premium) * 1e6)), expiry: BigInt(now + 1800) };
   const hash = await pub.readContract({ ...S, functionName: "quoteHash", args: [holder.address, q.location, q.date, q.settleAfter, q.thresholdE6, q.payout, q.premium, q.expiry] });
   const sig = await signer.signMessage({ message: { raw: hash } });   // underwriter signs the quote
