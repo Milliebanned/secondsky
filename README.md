@@ -15,7 +15,7 @@ It pays by rule, with no person in the claim:
 
 Why the 50% rule: over a year in 10 cities, on days when at least one source reached 10 mm, the two disagreed **64%** of the time. A contract that trusts one source pays on that source's luck. See [`scripts/agreement_study.py`](scripts/agreement_study.py).
 
-**Live:** https://secondsky-phi.vercel.app (numbers read from the chain) · **Buy or replay:** https://secondsky-phi.vercel.app/buy.html
+**Live:** https://secondsky.milliebanned.xyz (numbers read from the chain) · **Buy or replay:** https://secondsky.milliebanned.xyz/buy.html
 
 Status: Telegraph Hackathon Season II, Mission 06 (Resources & Agriculture). **Sepolia testnet, test USDC.**
 

@@ -78,7 +78,7 @@ if (cmd === "setup") {
   console.log(`  job ${p.jobA} (A ${dep.sourceA}): ${await ans(p.jobA)}   job ${p.jobB} (B ${dep.sourceB}): ${await ans(p.jobB)}`);
 } else if (cmd === "finalize" && V2) {
   // v2: go through the keeper, which checks Telegraph's job records before finalizing
-  const r = await (await fetch(`https://secondsky-phi.vercel.app/api/keeper?policy=${args[0]}`)).json();
+  const r = await (await fetch(`https://secondsky.milliebanned.xyz/api/keeper?policy=${args[0]}`)).json();
   console.log(JSON.stringify(r));
   if (r.result?.tx) await pub.waitForTransactionReceipt({ hash: r.result.tx });
   const p = await pub.readContract({ ...S, functionName: "getPolicy", args: [BigInt(args[0])] });

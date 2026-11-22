@@ -19,7 +19,7 @@ Testnet, test USDC. Policies bought by our own test wallet (`0xaE11B21cC16223E35
 3. **The numbers are real:**
    - Open-Meteo archive: `https://archive-api.open-meteo.com/v1/archive?latitude=51.50853&longitude=-0.12574&start_date=2026-11-17&end_date=2026-11-17&daily=precipitation_sum&timezone=auto` returns 26.3 for London.
    - NASA POWER (`PRECTOTCORR`) gives 13.98 for the same place and day.
-4. **Live view:** https://secondsky-phi.vercel.app
+4. **Live view:** https://secondsky.milliebanned.xyz
 
 ---
 
@@ -44,3 +44,12 @@ Latency: from settle to both answers on-chain, **about 8 minutes** (485 s for al
 5. **What it cost:** 2 USDC of evidence, wasted by the reroute. Nothing was paid out wrongly.
 
 Feedback for Telegraph: when a job created with `createJobForMiner` falls back to another miner, the agent is not told on-chain. Exposing the resolving miner in the callback, or failing the job instead, would let contracts enforce source independence without an off-chain check.
+
+### London #2, bought again (22 Nov)
+NASA POWER published 19 Nov on 22 Nov, and the keeper now waits for that before buying (it asks the NASA endpoint first).
+| Job | Answered by | Rain |
+|---|---|---|
+| [17](https://devnode.telegraphprotocol.com/engine/v1/job/17/result) | oathcast-forecast-verify (named miner) | 8.2 mm |
+| [18](https://devnode.telegraphprotocol.com/engine/v1/job/18/result) | secondsky-nasa-rainfall (named miner) | 0.94 mm |
+
+Both under the 10 mm limit, so **Not paid**. Finalize: [0x275a64f1…](https://sepolia.etherscan.io/tx/0x275a64f1c808023b6bb68c768d22898d2526a132a28f10586e317c7f0fd82d90)
