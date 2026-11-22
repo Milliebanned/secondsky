@@ -3,104 +3,126 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SecondSky — buy cover</title>
+<title>Cover a Day</title>
 <meta name="description" content="Buy a day of rain cover on Sepolia testnet, or replay a past day and watch the contract settle it from two Telegraph sources.">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#f6f7f4;--card:#fff;--ink:#15201b;--muted:#5d6a63;--line:#e2e6e1;--accent:#1f6f4a;--accent-ink:#fff;--a:#2f6fd0;--b:#d07a1f;--dis:#c0392b;--chip:#eef1ec;--wait:#a37b00}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1512;--card:#161e1a;--ink:#e7ede9;--muted:#97a59d;--line:#26322c;--accent:#3fbf86;--accent-ink:#06130c;--a:#6ea2f0;--b:#f0a050;--dis:#ef6b5b;--chip:#1e2823;--wait:#e0b12e}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif}
-.wrap{max-width:760px;margin:0 auto;padding:0 16px 60px}
-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
-nav a{color:var(--ink);text-decoration:none;font-weight:600}
-nav .back{font-weight:400;color:var(--muted);font-size:14px}
-h1{font-size:clamp(28px,5vw,38px);margin:12px 0 8px;letter-spacing:-.02em}
-.lede{color:var(--muted);margin:0 0 24px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
-.step{font:500 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
-input,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:560px){.row{grid-template-columns:1fr}}
-button{font:600 15px Inter;padding:11px 16px;border-radius:10px;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;margin-top:14px}
-button.ghost{background:var(--chip);color:var(--ink)}
-button:disabled{opacity:.45;cursor:not-allowed}
-.hint{font-size:13px;color:var(--muted);margin-top:6px}
-.mono{font-family:"JetBrains Mono",monospace;font-size:13px;word-break:break-all}
-.sugg{border:1px solid var(--line);border-radius:10px;margin-top:4px;overflow:hidden}
-.sugg div{padding:8px 12px;cursor:pointer;font-size:14px;background:var(--card)}
-.sugg div:hover{background:var(--chip)}
-.tabs{display:flex;gap:8px;margin-bottom:4px}
-.tabs button{margin:0;background:var(--chip);color:var(--ink);font-weight:500}
-.tabs button.on{background:var(--accent);color:var(--accent-ink)}
-.price{font-size:34px;font-weight:700}
-.log{font-size:14px}
-.log div{padding:6px 0;border-bottom:1px dashed var(--line)}
-.log a{color:var(--a)}
-.err{color:var(--dis);font-size:14px;margin-top:8px}
-.bars{display:grid;gap:8px;margin-top:10px}
-.bar{display:grid;grid-template-columns:120px 1fr 80px;gap:10px;align-items:center;font-size:13px}
-.track{height:12px;background:var(--chip);border-radius:6px;position:relative}
-.fill{height:100%;border-radius:6px}
-.limit{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
-.note{border-left:4px solid var(--wait);padding:10px 14px;background:var(--card);border-radius:8px;font-size:14px;color:var(--muted)}
-</style>
+<meta name="theme-color" content="#0c0e0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230c0e0d'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23ff5a1f' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ss.css">
+<link rel="stylesheet" href="/ss-buy.css">
 </head>
-<body>
-<div class="wrap">
-<nav><a href="/">SecondSky</a><a class="back" href="/">← all policies and numbers</a></nav>
-<h1>Cover a day against rain</h1>
-<p class="lede">Pick a place, a day and how much rain would ruin it. If both independent sources record at least that much, the contract pays you. Sepolia testnet, test USDC only.</p>
-
-<div class="card">
-  <div class="step">1 · Wallet</div>
-  <div id="wallet">You need a browser wallet (MetaMask, Rabby…) with a little Sepolia ETH for gas.</div>
-  <button id="connect">Connect wallet</button>
-  <button id="mint" class="ghost" hidden>Get 50 test USDC</button>
-  <div class="hint">No Sepolia ETH? Use a free faucet, e.g. <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">Google's</a>.</div>
-</div>
-
-<div class="card">
-  <div class="step">2 · What to cover</div>
-  <div class="tabs"><button id="tCover" class="on">A future day</button><button id="tReplay">Replay a past day</button></div>
-  <div class="hint" id="modeHint">Real cover: for a day 1–90 days ahead. Settles about 6 days after the day, because NASA publishes late.</div>
-  <label for="place">Place</label>
-  <input id="place" placeholder="Type a town or city, e.g. Lagos" autocomplete="off">
-  <div id="sugg" class="sugg" hidden></div>
-  <div class="hint" id="picked"></div>
-  <div class="row">
-    <div><label for="date">Day</label><input id="date" type="date"></div>
-    <div><label for="limit">Pay if rain is at least (mm)</label><input id="limit" type="number" min="1" max="100" step="0.5" value="10"></div>
+<body class="buy-page">
+<nav class="nav solid" id="nav">
+  <a class="mark" href="/" aria-label="SecondSky home">Second<span>Sky</span></a>
+  <div class="nav-links">
+    <a href="/#work">Who it's for</a>
+    <a href="/#settle">How it settles</a>
+    <a href="/#ledger">Ledger</a>
+    <a href="/operators.html">Operators</a>
   </div>
-  <label for="payout">Payout (USDC)</label>
-  <input id="payout" type="number" min="1" max="50" step="1" value="20">
-  <button id="quote">Get a price</button>
-  <div class="err" id="qerr"></div>
+  <a class="nav-cta" href="/buy.html" aria-current="page">Cover a day</a>
+</nav>
+
+<div class="buy">
+  <aside class="visual" id="visual" aria-label="Your policy, as you build it">
+    <img class="v-sky" src="/media/sky-storm.jpg" alt="">
+    <div class="v-word"><span id="vWord">Anywhere</span></div>
+    <img class="v-fg" id="vFg" src="/media/harvest-fg.webp" alt="" width="2400" height="1600">
+    <video class="v-glass" src="/media/glass.mp4" muted loop playsinline autoplay aria-hidden="true"></video>
+    <div class="v-shade"></div>
+    <div class="ticket" id="ticket">
+      <div class="t-head"><span>Policy draft</span><span id="tId">Sepolia · test USDC</span></div>
+      <div class="t-grid">
+        <div><span>Place</span><b id="tPlace">Pick a place</b><em id="tCoords">&nbsp;</em></div>
+        <div><span>Day</span><b id="tDay">—</b><em id="tMode">Cover</em></div>
+        <div><span>Pays if both record</span><b id="tLimit">≥ 10 mm</b><em>Open-Meteo and NASA POWER</em></div>
+        <div><span>Payout</span><b id="tPayout">20 USDC</b><em>50% if they split</em></div>
+      </div>
+      <div class="t-foot"><span>Price</span><b id="tPrice">Ask for a price</b><i id="tStamp" hidden></i></div>
+    </div>
+  </aside>
+
+  <main class="form">
+    <header class="form-head">
+      <span class="sec-no">Cover a day</span>
+      <h1>Name the day.<br>Name the rain.</h1>
+      <p>Pick a place, a day and how much rain would ruin it. If both independent records reach that much, the contract pays you. If they split, it pays half. Sepolia testnet, test USDC only.</p>
+    </header>
+
+    <section class="step">
+      <div class="step-no">01</div>
+      <div class="step-body">
+        <h2>Wallet</h2>
+        <div id="wallet" class="hint-lg">You need a browser wallet (MetaMask, Rabby…) with a little Sepolia ETH for gas.</div>
+        <div class="btns">
+          <button id="connect" class="btn-solid">Connect wallet</button>
+          <button id="mint" class="btn-line" hidden>Get 50 test USDC</button>
+        </div>
+        <p class="hint">No Sepolia ETH? Use a free faucet, for example <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">Google's</a>.</p>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="step-no">02</div>
+      <div class="step-body">
+        <h2>The day</h2>
+        <div class="seg" role="tablist"><button id="tCover" class="on" role="tab">A future day</button><button id="tReplay" role="tab">Replay a past day</button></div>
+        <p class="hint" id="modeHint">Real cover: for a day 1–90 days ahead. Settles about 6 days after the day, because NASA publishes late.</p>
+        <div class="field">
+          <label for="place">Place</label>
+          <input id="place" placeholder="Type a town or city, e.g. Lagos" autocomplete="off">
+          <div id="sugg" class="sugg" hidden></div>
+          <p class="hint" id="picked"></p>
+        </div>
+        <div class="fields">
+          <div class="field"><label for="date">Day</label><input id="date" type="date"></div>
+          <div class="field"><label for="limit">Rain limit, mm</label><input id="limit" type="number" min="1" max="100" step="0.5" value="10"></div>
+          <div class="field"><label for="payout">Payout (USDC)</label><input id="payout" type="number" min="1" max="50" step="1" value="20"></div>
+        </div>
+        <button id="quote" class="btn-solid">Get a price</button>
+        <div class="err" id="qerr"></div>
+      </div>
+    </section>
+
+    <section class="step" id="qcard" hidden>
+      <div class="step-no">03</div>
+      <div class="step-body">
+        <h2>Price</h2>
+        <div class="price"><b id="premium"></b><span id="premiumFor"></span></div>
+        <p id="qtext" class="hint-lg"></p>
+        <p class="hint mono" id="qloc"></p>
+        <button id="buy" class="btn-solid">Approve and buy</button>
+        <div class="err" id="berr"></div>
+      </div>
+    </section>
+
+    <section class="step" id="pcard" hidden>
+      <div class="step-no">04</div>
+      <div class="step-body">
+        <h2>Your policy</h2>
+        <div id="ptitle" class="ptitle"></div>
+        <div class="pbars" id="pbars"></div>
+        <div class="log" id="log"></div>
+        <div class="btns">
+          <button id="settle" class="btn-solid" hidden>Settle now: buy both answers from Telegraph</button>
+          <button id="finalize" class="btn-solid" hidden>Finish: check the records and pay out</button>
+        </div>
+        <div class="err" id="perr"></div>
+      </div>
+    </section>
+
+    <aside class="fine-note">
+      <h3>How the price works</h3>
+      <p>The price comes from 10 years of <b>both</b> records at that exact spot, for the same two weeks of the year, so the split rule is priced in. The quote server signs it and the contract checks the signature.</p>
+      <p>Settling buys two Telegraph jobs (1 USDC each, paid from the pool): one from an Open-Meteo miner, one from a NASA POWER miner. Both reach your limit: 100%. They split: 50%. Neither: 0. No person decides.</p>
+      <p>A replay costs the payout plus 2 USDC, so it can never make money. It exists so you can watch a whole settlement today.</p>
+    </aside>
+  </main>
 </div>
 
-<div class="card" id="qcard" hidden>
-  <div class="step">3 · Price</div>
-  <div class="price" id="premium"></div>
-  <div id="qtext" class="hint"></div>
-  <div class="hint mono" id="qloc"></div>
-  <button id="buy">Approve and buy</button>
-  <div class="err" id="berr"></div>
-</div>
-
-<div class="card" id="pcard" hidden>
-  <div class="step">4 · Your policy</div>
-  <div id="ptitle" style="font-weight:600"></div>
-  <div class="bars" id="pbars"></div>
-  <div class="log" id="log"></div>
-  <button id="settle" hidden>Settle now: buy both answers from Telegraph</button>
-  <button id="finalize" hidden>Finish: check the records and pay out</button>
-  <div class="err" id="perr"></div>
-</div>
-
-<p class="note">The price comes from 10 years of rain history at that spot. The underwriter signs it and the contract checks the signature. Settling buys two Telegraph jobs (1 USDC each, from the pool): one from an Open-Meteo miner, one from a NASA POWER miner. Both reach your limit: 100% paid. They split: 50%. Neither: 0. No person decides. The cover price uses 10 years of both sources at that spot, so the split rule is priced in. A replay costs the payout plus 2 USDC, so it can never make money. It exists so you can watch a whole settlement today.</p>
-</div>
-
+<script src="/ss-buy.js" defer></script>
 <script type="module">
 import { createPublicClient, createWalletClient, custom, http, parseAbi, formatUnits } from "https://esm.sh/viem@2.21.0";
 import { sepolia } from "https://esm.sh/viem@2.21.0/chains";
@@ -165,7 +187,7 @@ function setMode(m) {
   }
   $("qcard").hidden = true;
 }
-$("tCover").onclick = () => setMode("cover"); $("tReplay").onclick = () => setMode("replay"); setMode("cover");
+$("tCover").onclick = () => { setMode("cover"); window.ssTicket && window.ssTicket({}); }; $("tReplay").onclick = () => { setMode("replay"); window.ssTicket && window.ssTicket({}); }; setMode("cover");
 
 // place search (Open-Meteo geocoding)
 let st;
@@ -180,7 +202,8 @@ $("place").oninput = () => {
     [...$("sugg").children].forEach((el) => el.onclick = () => {
       const h = hits[el.dataset.i]; place = { lat: h.latitude, lon: h.longitude, name: `${h.name}, ${h.country || ""}` };
       $("place").value = el.textContent; $("sugg").hidden = true;
-      $("picked").innerHTML = `Both sources will be asked about <span class="mono">${h.latitude.toFixed(4)},${h.longitude.toFixed(4)}</span> (exact coordinates, so they read the same spot).`;
+      $("picked").innerHTML = `Both sources will be asked about <span class="mono">${h.latitude.toFixed(4)},${h.longitude.toFixed(4)}</span>, exact coordinates, so they read the same spot.`;
+      window.ssTicket && window.ssTicket({ place: h.name, coords: `${h.latitude.toFixed(4)}, ${h.longitude.toFixed(4)}` });
     });
   }, 250);
 };
@@ -195,10 +218,12 @@ $("quote").onclick = async () => {
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "no price");
     q = j;
-    $("premium").textContent = `${j.premium_usdc} USDC for ${j.payout_usdc} USDC cover`;
+    $("premium").innerHTML = `${j.premium_usdc}<small>USDC</small>`;
+    $("premiumFor").textContent = `for ${j.payout_usdc} USDC of cover`;
     $("qtext").textContent = j.explain + ` Settles after ${new Date(j.settle_after_iso).toLocaleString()}. Price valid for 15 minutes.`;
     $("qloc").textContent = `${place.name} · ${j.args.location} · ${j.args.date} · pays if both sources record ≥ ${j.threshold_mm} mm`;
     $("qcard").hidden = false;
+    window.ssTicket && window.ssTicket({ price: j.premium_usdc });
   } catch (e) { $("qerr").textContent = errMsg(e); }
   $("quote").disabled = false;
 };
@@ -221,6 +246,7 @@ $("buy").onclick = async () => {
     if (ev) policyId = BigInt(ev.topics[1]);
     $("pcard").hidden = false; $("qcard").hidden = true;
     log(txLink(`Bought policy #${policyId}`, h));
+    window.ssTicket && window.ssTicket({ id: String(policyId) });
     await refreshWallet(); await showPolicy();
   } catch (e) { $("berr").textContent = errMsg(e); }
   $("buy").disabled = false;
@@ -236,8 +262,9 @@ async function showPolicy() {
   let a = null, b = null;
   if (p.jobA) [a, b] = (await Promise.all([p.jobA, p.jobB].map((j) => pub.readContract({ address: ADDR, abi, functionName: "answers", args: [j] })))).map(unpack);
   const max = Math.max(lim, typeof a === "number" ? a : 0, typeof b === "number" ? b : 0) * 1.15 || 1;
-  const bar = (n, c, v) => `<div class="bar"><span>${n}</span><div class="track"><div class="fill" style="width:${typeof v === "number" ? 100 * v / max : 0}%;background:${c}"></div><div class="limit" style="left:${100 * lim / max}%"></div></div><span class="mono">${v === null ? (p.jobA ? "waiting" : "–") : v === "failed" ? "no answer" : v + " mm"}</span></div>`;
-  $("pbars").innerHTML = bar("A · Open-Meteo", "var(--a)", a) + bar("B · NASA POWER", "var(--b)", b) + (p.jobA ? `<div class="hint">Telegraph jobs #${p.jobA} and #${p.jobB}. Black line = your limit.</div>` : "");
+  const bar = (n, c, v) => `<div class="gbar"><span>${n}</span><div class="t"><div class="f ${c}" style="width:${typeof v === "number" ? Math.max(0.6, 100 * v / max) : 0}%"></div><div class="lim" style="left:${100 * lim / max}%"></div></div><span class="v">${v === null ? (p.jobA ? "waiting" : "—") : v === "failed" ? "no answer" : v + " mm"}</span></div>`;
+  $("pbars").innerHTML = bar("Open-Meteo", "f-a", a) + bar("NASA POWER", "f-b", b) + (p.jobA ? `<p class="hint">Telegraph jobs <a href="https://devnode.telegraphprotocol.com/engine/v1/job/${p.jobA}/result" target="_blank" rel="noopener">#${p.jobA}</a> and <a href="https://devnode.telegraphprotocol.com/engine/v1/job/${p.jobB}/result" target="_blank" rel="noopener">#${p.jobB}</a>. The black line is your limit.</p>` : "");
+  window.ssTicket && window.ssTicket({ status: st });
   $("finalize").hidden = !(st === "Settling" && a !== null && b !== null);
   clearTimeout(timer);
   if (st === "Settling") timer = setTimeout(showPolicy, 20000);

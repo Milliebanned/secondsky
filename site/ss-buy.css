@@ -1,0 +1,82 @@
+/* Buy page: the place you are covering, as a giant word behind the work; the form as a work docket. */
+.buy-page{background:var(--paper)}
+.buy{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:100vh}
+.visual{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#11161a;isolation:isolate}
+.v-sky,.v-fg,.v-glass{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.v-sky{filter:brightness(.86)}
+.v-fg{object-position:50% 62%;filter:brightness(.8) saturate(.8) contrast(1.05)}
+.v-glass{mix-blend-mode:overlay;opacity:.5;pointer-events:none}
+.v-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top, rgba(8,10,12,.86), rgba(8,10,12,.2) 46%, transparent 62%), linear-gradient(to bottom, rgba(8,10,12,.5), transparent 20%)}
+.v-word{position:absolute;left:0;right:0;display:flex;justify-content:center;pointer-events:none}
+.v-word span{font:900 120px/.8 var(--f);font-stretch:125%;letter-spacing:-.025em;text-transform:uppercase;color:var(--bone);white-space:nowrap;transition:opacity .35s}
+.v-word span.swap{animation:wordIn .6s cubic-bezier(.2,.7,.2,1)}
+@keyframes wordIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+
+.ticket{position:absolute;left:var(--gut);right:var(--gut);bottom:28px;z-index:3;color:var(--bone);font:400 13px/1.35 var(--m);background:rgba(12,14,13,.62);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(243,239,230,.18)}
+.t-head{display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px dashed rgba(243,239,230,.25);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--wheat)}
+.t-grid{display:grid;grid-template-columns:1fr 1fr}
+.t-grid div{padding:12px 16px;border-bottom:1px solid rgba(243,239,230,.12)}
+.t-grid div:nth-child(odd){border-right:1px solid rgba(243,239,230,.12)}
+.t-grid span,.t-foot span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.65}
+.t-grid b{display:block;margin-top:5px;font:800 19px/1.1 var(--f);font-stretch:110%;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-grid em{display:block;margin-top:3px;font-style:normal;font-size:11.5px;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-foot{position:relative;display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 16px}
+.t-foot b{font:900 24px/1 var(--f);font-stretch:118%;color:var(--vest)}
+.t-foot i{position:absolute;right:16px;top:-26px;font:900 15px/1 var(--f);font-style:normal;font-stretch:118%;text-transform:uppercase;color:var(--vest);border:2.5px solid var(--vest);padding:8px 10px 6px;transform:rotate(-6deg);background:rgba(12,14,13,.55)}
+
+.form{color:var(--paper-ink);padding:120px clamp(20px,4.5vw,72px) 80px}
+.form a{color:var(--paper-ink)}
+.form .sec-no{color:#c4400f}
+.form-head h1{font:900 clamp(40px,5vw,72px)/.92 var(--f);font-stretch:118%;letter-spacing:-.02em;text-transform:uppercase;margin:0 0 20px}
+.form-head p{font-size:17px;color:var(--paper-mute);max-width:52ch;margin:0 0 30px}
+.step{display:grid;grid-template-columns:64px 1fr;gap:0 18px;padding:30px 0;border-top:2px solid var(--paper-ink)}
+.step[hidden]{display:none}
+.step-no{font:800 40px/.9 var(--f);font-stretch:68%;color:var(--paper-ink)}
+.step-body h2{font:800 22px/1 var(--f);font-stretch:112%;text-transform:uppercase;margin:4px 0 14px}
+.hint{font:400 13px/1.5 var(--f);color:var(--paper-mute);margin:8px 0 0}
+.hint-lg{font-size:15px;color:#3b3a34;margin:0 0 4px}
+.hint.mono,.hint-lg .mono,#wallet .mono{font-family:var(--m);font-size:12.5px;word-break:break-all}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+.form .btn-solid{margin-top:16px}
+.btns .btn-solid{margin-top:0}
+.btn-line{font:700 13px/1 var(--f);letter-spacing:.1em;text-transform:uppercase;padding:16px 22px;border:1.5px solid var(--paper-ink);color:var(--paper-ink);background:transparent;cursor:pointer}
+.btn-line:hover{background:var(--paper-ink);color:var(--paper)}
+.btn-line:disabled{opacity:.45}
+.seg{display:inline-flex;border:1.5px solid var(--paper-ink)}
+.seg button{font:700 12px/1 var(--f);letter-spacing:.1em;text-transform:uppercase;padding:12px 16px;color:var(--paper-ink)}
+.seg button.on{background:var(--paper-ink);color:var(--paper)}
+.field{margin-top:20px;position:relative}
+.fields{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:0 18px;align-items:end}
+label{display:block;font:500 11px/1.2 var(--m);letter-spacing:.1em;text-transform:uppercase;color:var(--paper-mute);margin-bottom:6px}
+input{width:100%;font:600 19px/1.2 var(--f);color:var(--paper-ink);background:transparent;border:0;border-bottom:2px solid var(--paper-ink);padding:8px 0 9px;border-radius:0;outline:none;transition:border-color .2s}
+input:focus{border-bottom-color:var(--vest)}
+input::placeholder{color:#9c9584;font-weight:400}
+input[type=date]{font-family:var(--f);min-height:44px}
+.sugg{position:absolute;left:0;right:0;z-index:5;background:var(--bone);border:1.5px solid var(--paper-ink);border-top:0;max-height:260px;overflow:auto;box-shadow:0 18px 30px -18px rgba(0,0,0,.35)}
+.sugg div{padding:11px 12px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--paper-line)}
+.sugg div:hover{background:var(--paper-2)}
+.price{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin:0 0 10px}
+.price b{font:900 clamp(56px,6vw,86px)/.85 var(--f);font-stretch:118%;letter-spacing:-.03em}
+.price b small{font-size:.3em;letter-spacing:.04em;margin-left:6px;vertical-align:.15em}
+.price span{font:500 13px/1.3 var(--m);color:var(--paper-mute);text-transform:uppercase;letter-spacing:.06em}
+.ptitle{font:600 16px/1.4 var(--f);margin-bottom:12px}
+.pbars{margin:8px 0 10px}
+.log{font:400 13px/1.45 var(--m)}
+.log div{padding:9px 0;border-bottom:1px dashed var(--paper-line)}
+.err{color:var(--bad);font:500 13.5px/1.4 var(--f);margin-top:10px}
+.fine-note{margin-top:30px;padding:24px 0 0;border-top:2px solid var(--paper-ink);color:var(--paper-mute);font-size:14.5px}
+.fine-note h3{font:800 15px/1 var(--f);font-stretch:112%;text-transform:uppercase;color:var(--paper-ink);margin:0 0 12px}
+.fine-note b{color:var(--paper-ink)}
+
+@media (max-width:980px){
+  .buy{grid-template-columns:1fr}
+  .visual{position:relative;height:72svh;min-height:520px}
+  .form{padding-top:56px}
+}
+@media (max-width:560px){
+  .fields{grid-template-columns:1fr}
+  .step{grid-template-columns:44px 1fr;gap:0 12px}
+  .step-no{font-size:30px}
+  .t-grid b{font-size:16px}
+  .ticket{bottom:16px}
+}

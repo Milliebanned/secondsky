@@ -3,288 +3,236 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SecondSky — rain cover that asks two skies</title>
-<meta name="description" content="Single-day rain cover that settles itself by buying recorded rainfall from Telegraph, from two independent sources. Live on-chain statistics.">
+<title>SecondSky</title>
+<meta name="description" content="Rain cover for the one day that has to stay dry. When the day is over, the contract buys the recorded rainfall from Telegraph, from two independent sources, and pays by rule. Live on Sepolia testnet.">
+<meta name="theme-color" content="#0c0e0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230c0e0d'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23ff5a1f' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#f6f7f4; --card:#ffffff; --ink:#15201b; --muted:#5d6a63; --line:#e2e6e1;
-  --a:#2f6fd0; --b:#d07a1f; --wet:#1f8a5b; --dry:#6b7280; --dis:#c0392b; --wait:#a37b00;
-  --chip:#eef1ec;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0f1512; --card:#161e1a; --ink:#e7ede9; --muted:#97a59d; --line:#26322c;
-    --a:#6ea2f0; --b:#f0a050; --wet:#3fbf86; --dry:#9ca3af; --dis:#ef6b5b; --wait:#e0b12e; --chip:#1e2823;
-  }
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif}
-.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
-header{padding:48px 0 24px}
-.tag{display:inline-block;font:500 12px/1 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 10px;margin-bottom:18px}
-h1{font-size:clamp(30px,5vw,46px);line-height:1.1;margin:0 0 14px;letter-spacing:-.02em}
-h1 span{color:var(--muted);font-weight:500}
-.lede{max-width:700px;color:var(--muted);font-size:18px;margin:0}
-.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:28px 0 8px}
-.how div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted)}
-.how b{display:block;color:var(--ink);margin-bottom:2px}
-h2{font-size:20px;margin:44px 0 6px}
-.sub{color:var(--muted);margin:0 0 16px;font-size:14px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
-.stat .k{font:500 11px/1.3 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.stat .v{font-size:30px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
-.stat .n{font-size:13px;color:var(--muted)}
-.policies{display:grid;gap:12px}
-.pol{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.pol .top{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;justify-content:space-between}
-.pol .place{font-weight:600;font-size:17px}
-.pol .meta{color:var(--muted);font-size:13px}
-.badge{font:600 12px/1 Inter;padding:6px 10px;border-radius:999px;color:#fff}
-.b-Paid{background:var(--wet)} .b-NotPaid{background:var(--dry)} .b-Disputed{background:var(--dis)}
-.b-PaidHalf{background:#3b82a6} .b-Settling,.b-Active{background:var(--wait)} .b-Refunded{background:var(--dry)}
-.bars{margin:14px 0 8px;display:grid;gap:8px}
-.bar{display:grid;grid-template-columns:120px 1fr 72px;gap:10px;align-items:center;font-size:13px}
-.bar .lbl{color:var(--muted)}
-.track{position:relative;height:14px;background:var(--chip);border-radius:7px;overflow:visible}
-.fill{height:100%;border-radius:7px}
-.limit{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
-.bar .mm{font:500 13px "JetBrains Mono",monospace;text-align:right}
-.why{font-size:14px;margin:6px 0 10px}
-.links{display:flex;flex-wrap:wrap;gap:6px}
-.links a{font:12px "JetBrains Mono",monospace;color:var(--ink);background:var(--chip);border-radius:6px;padding:4px 8px;text-decoration:none}
-.links a:hover{text-decoration:underline}
-.note{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--wait);border-radius:10px;padding:14px 16px;font-size:14px;color:var(--muted);margin-top:16px}
-.facts{font-size:14px;color:var(--muted)}
-.facts code,.mono{font-family:"JetBrains Mono",monospace;font-size:13px;word-break:break-all}
-a{color:var(--a)}
-.cta{display:inline-block;margin-top:18px;background:var(--wet);color:#fff;font-weight:600;padding:11px 16px;border-radius:10px;text-decoration:none}
-.fcwrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px}
-table.fc{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
-table.fc th,table.fc td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
-table.fc th{font:500 11px/1.3 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-table.fc tr:last-child td{border-bottom:0}
-.ok{color:var(--wet);font-weight:600}.bad{color:var(--dis);font-weight:600}
-footer{padding:40px 0 60px;color:var(--muted);font-size:13px}
-#err{color:var(--dis)}
-@media (max-width:560px){.bar{grid-template-columns:90px 1fr 60px}}
-</style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="/media/sky-storm.jpg">
+<link rel="preload" as="image" href="/media/harvest-fg.webp">
+<link rel="stylesheet" href="/ss.css">
 </head>
 <body>
-<div class="wrap">
-<header>
-  <div class="tag">Ethereum Sepolia testnet · live from the chain</div>
-  <h1>SecondSky <span>— rain cover that asks two skies</span></h1>
-  <p class="lede">Cover for one day that has to stay dry: a pour, a haul-road shift, a harvest. When the day is over, the contract buys that day's recorded rainfall from Telegraph twice, from two independent sources, and pays by rule. No one decides a claim by hand.</p>
-  <p><a class="cta" href="/buy.html">Buy cover, or replay a past day →</a> &nbsp; <a href="/operators.html">Who this is for →</a></p>
-  <div class="how">
-    <div><b>Source A · OathCast</b>Open-Meteo archive, Telegraph miner <span class="mono" id="srcA">5130</span></div>
-    <div><b>Source B · SecondSky NASA</b>NASA POWER satellite + reanalysis, Telegraph miner <span class="mono" id="srcB">6151</span></div>
-    <div><b>Both reach the limit</b>Pays 100%</div>
-    <div><b>They split</b>Pays 50%, automatically</div>
-    <div><b>Neither reaches it</b>Pays 0</div>
+
+<nav class="nav" id="nav">
+  <a class="mark" href="/" aria-label="SecondSky home">Second<span>Sky</span></a>
+  <div class="nav-links">
+    <a href="#work">Who it's for</a>
+    <a href="#settle">How it settles</a>
+    <a href="#ledger">Ledger</a>
+    <a href="#forecast">Forecasts</a>
+    <a href="/operators.html">Operators</a>
   </div>
-</header>
+  <a class="nav-cta" href="/buy.html">Cover a day</a>
+</nav>
 
-<h2>Numbers</h2>
-<p class="sub">Read from the contracts on every page load. Nothing here is typed in by hand. <span id="updated"></span></p>
-<div class="stats" id="stats"><div class="stat"><div class="k">Loading</div><div class="v">…</div></div></div>
+<!-- ============================================================ 01 · THE DAY -->
+<h1 class="sr-only">SecondSky: rain cover for the one day that has to stay dry, settled by two independent weather records bought from Telegraph</h1>
+<section class="sky" id="sky" aria-label="An example day: rain, then the payout">
+  <div class="stage" id="stage">
+    <div class="layer l-sky">
+      <img class="sky-img s0" src="/media/sky-storm.jpg" alt="">
+      <img class="sky-img s1" src="/media/sky-break.jpg" alt="" loading="lazy">
+      <img class="sky-img s2" src="/media/sky-clear.jpg" alt="" loading="lazy">
+    </div>
+    <div class="layer l-bg"><img id="sceneBg" alt=""></div>
+    <div class="layer l-word" aria-hidden="true"><div class="word" id="word">HARVEST</div></div>
+    <div class="layer l-fg"><img id="sceneFg" alt=""></div>
+    <div class="layer l-haze"></div>
+    <div class="layer l-scrim"></div>
+    <video class="layer l-glass" id="glass" src="/media/glass.mp4" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video>
 
-<h2>Every policy</h2>
-<p class="sub">Each bar is what one source said fell that day. The black line is the policy's rain limit. Every step links to its transaction and to Telegraph's own record of the job, which names the miner that answered.</p>
-<div class="policies" id="policies"></div>
-<p id="err"></p>
+    <div class="hud">
+      <p class="eyebrow" id="eyebrow">One day · one place · two skies</p>
 
-<div class="note"><b>What this is.</b> Testnet, test USDC. Most policies so far were bought by our own test wallet to exercise settlement against real recorded weather (replays of past days, which cost more than they can pay). They are not customers, and are labelled "our test" below.</div>
+      <div class="gauge" aria-hidden="true">
+        <span class="g-label">Rain gauge</span>
+        <div class="g-tube"><div class="g-fill" id="gFill"></div><i style="--y:29%"></i><i style="--y:50%"></i><i style="--y:71%"></i></div>
+        <span class="g-read" id="gRead">0.0 mm</span>
+      </div>
 
-<h2 id="forecast">Was the forecast right?</h2>
-<p class="sub">The morning before each covered day, the keeper buys Telegraph's forecast for that place (<span class="mono">WEATHER_FORECAST_GENERAL</span>, the network picks the miner) through <a href="https://sepolia.etherscan.io/address/0x846f58e93abe4f25b843d75f6f767123e75adebf" target="_blank" rel="noopener">ForecastLog</a>. When the day settles, it is scored against the two records the policy paid on. The forecast "said rain" at a peak chance of 50% or more, and the day "was wet" if the two records average 1 mm or more. The peak chance covers the whole window bought, which starts the day before, so it leans towards false alarms.</p>
-<div class="stats" id="fcStats"><div class="stat"><div class="k">Loading</div><div class="v">…</div></div></div>
-<div class="fcwrap"><table class="fc"><thead><tr><th>Policy</th><th>Place, day</th><th>Warning</th><th>Forecast</th><th>Recorded (A / B)</th><th>Score</th></tr></thead><tbody id="fcRows"></tbody></table></div>
+      <div class="beat" id="beat">
+        <span class="b-time" id="bTime">06:00 · Tuesday</span>
+        <p class="b-text" id="bText">Forty hectares are ready to cut. The forecast says rain is likely.</p>
+        <span class="b-note">An example day. Real policies are in the ledger below.</span>
+      </div>
 
-<h2 id="study">How often do two skies disagree?</h2>
-<p class="facts">We compared Open-Meteo and NASA POWER daily rainfall for 10 cities over a full year (Nov 2025 – Oct 2026, 3,650 city-days). On most days both are dry. But on days when at least one source reaches the limit, they often disagree:</p>
-<div class="stats">
-  <div class="stat"><div class="k">Limit 5 mm</div><div class="v">55%</div><div class="n">of 1,036 rainy days split</div></div>
-  <div class="stat"><div class="k">Limit 10 mm</div><div class="v">64%</div><div class="n">of 587 rainy days split</div></div>
-  <div class="stat"><div class="k">Limit 20 mm</div><div class="v">73%</div><div class="n">of 221 rainy days split</div></div>
-</div>
-<p class="facts">A contract that trusts one source pays on that source's luck. Our first version refused to pay when they split and left it to a person, which on these numbers means most rainy days end in review. Version 2 pays half on a split, automatically, and prices that in: the premium uses 10 years of <i>both</i> sources at the exact spot. Method and code: <a href="https://github.com/Milliebanned/secondsky/blob/main/scripts/agreement_study.py">scripts/agreement_study.py</a>.</p>
+      <div class="hero-cta">
+        <a class="btn-ghost" href="/buy.html">Cover a day</a>
+        <a class="btn-text" href="#ledger">See every real policy</a>
+      </div>
 
-<h2>Who can do what</h2>
-<p class="facts"><b>Anyone</b> can settle a due policy, and finalize it a day after the answers arrive. <b>The operator</b> (a hot key on the quote server) signs prices up to a 50 USDC payout cap, finalizes at once after checking Telegraph's job records, and, if a job was answered by a miner other than the one named, can only send the policy back to be bought again. It cannot pick an outcome, move money or change settings. <b>The owner</b> (a cold key that never touches a server) controls the pool and sources. It can withdraw only money not promised to open policies. If a policy is never settled, the buyer can take the premium back after 7 days.</p>
+      <div class="scenes" role="tablist" aria-label="Choose a scene">
+        <button class="sc-arrow" id="scPrev" aria-label="Previous scene">←</button>
+        <button class="sc on" data-scene="0" role="tab">Harvest</button>
+        <button class="sc" data-scene="1" role="tab">Pour</button>
+        <button class="sc" data-scene="2" role="tab">Haul</button>
+        <button class="sc-arrow" id="scNext" aria-label="Next scene">→</button>
+      </div>
 
-<h2>Contracts and code</h2>
-<p class="facts">
-SecondSky v2 (current): <a class="mono" href="https://sepolia.etherscan.io/address/0x0136e904ef5df658588c84d95f520a338b3bbcff" target="_blank" rel="noopener">0x0136e904ef5df658588c84d95f520a338b3bbcff</a> · <a href="https://repo.sourcify.dev/11155111/0x0136E904eF5dF658588c84d95F520A338b3BBcfF" target="_blank" rel="noopener">source verified (Sourcify, exact match)</a><br>
-SecondSky v1 (first run, closes when its last policy settles): <a class="mono" href="https://sepolia.etherscan.io/address/0x75e0129d3c30045d72a90676f24a63e2a1e6752f" target="_blank" rel="noopener">0x75e0129d3c30045d72a90676f24a63e2a1e6752f</a><br>
-ForecastLog (forecast bought the day before each covered day): <a class="mono" href="https://sepolia.etherscan.io/address/0x846f58e93abe4f25b843d75f6f767123e75adebf" target="_blank" rel="noopener">0x846f58e93abe4f25b843d75f6f767123e75adebf</a> · <a href="https://repo.sourcify.dev/11155111/0x846f58e93abe4f25b843d75f6f767123e75adebf" target="_blank" rel="noopener">source verified</a><br>
-Telegraph Diamond: <a class="mono" href="https://sepolia.etherscan.io/address/0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b" target="_blank" rel="noopener">0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b</a><br>
-NASA source endpoint: <a class="mono" href="https://secondsky-nasa.vercel.app/api/verify?location=Nairobi&date=2026-11-05" target="_blank" rel="noopener">secondsky-nasa.vercel.app/api/verify</a><br>
-Code: <a href="https://github.com/Milliebanned/secondsky" target="_blank" rel="noopener">github.com/Milliebanned/secondsky</a>
-</p>
+      <div class="readout" id="readout" aria-hidden="true">
+        <div><span>Open-Meteo archive</span><b id="rA">14.2 mm</b></div>
+        <div><span>NASA POWER satellite</span><b id="rB">11.8 mm</b></div>
+        <div class="r-limit"><span>Limit</span><b>10 mm</b></div>
+      </div>
+      <div class="stamp-hero" id="stampHero" aria-hidden="true">Paid 100%</div>
+    </div>
+    <div class="scroll-cue" id="cue"><span>Scroll the weather</span><i></i></div>
+  </div>
+</section>
 
-<footer>Built for Telegraph Hackathon Season II, Mission 06 (Resources &amp; Agriculture).</footer>
-</div>
+<!-- ============================================================ 02 · WHO -->
+<section class="work" id="work">
+  <header class="sec-head">
+    <span class="sec-no">02</span>
+    <h2>Three kinds of work<br>that cannot get wet</h2>
+    <p>Some jobs happen on one booked day. If it rains, the machines stand still, the crew is still paid and the day is gone. Forecasts help you plan. They do not pay you when they are wrong.</p>
+  </header>
+  <div class="panels" id="panels">
+    <a class="panel" href="/operators.html" data-tilt style="--h:156%;--t:-55%;--l:-84%">
+      <div class="p-frame"><img class="p-img" src="/media/harvest.jpg" width="2200" height="1467" alt="A combine harvester cutting wheat" loading="lazy"></div>
+      <div class="p-pop"><img class="p-img" src="/media/harvest-cab.webp" width="2200" height="1467" alt="" decoding="async"></div>
+      <div class="p-cap"><span>01</span><h3>Harvest</h3><p>Grain cut wet has to be dried or sold for less. A rained-off day idles hired machines and crews.</p></div>
+    </a>
+    <a class="panel" href="/operators.html" data-tilt style="--h:130%;--t:-26%;--l:-70%">
+      <div class="p-frame"><img class="p-img" src="/media/pour.jpg" width="2200" height="1468" alt="A crew pouring a concrete slab" loading="lazy"></div>
+      <div class="p-pop"><img class="p-img" src="/media/pour-cut.webp" width="2200" height="1468" alt="" loading="lazy"></div>
+      <div class="p-cap"><span>02</span><h3>Pour</h3><p>The pump, the trucks and the crew are booked days ahead. Rain on the day means cancel, or risk a bad slab.</p></div>
+    </a>
+    <a class="panel p-wide" href="/operators.html" data-tilt style="--h:105%;--t:-5%;--l:-55.6%">
+      <div class="p-frame"><img class="p-img" src="/media/haul.jpg" width="2200" height="1467" alt="A loaded haul truck on a mine road" loading="lazy"></div>
+      <div class="p-pop"><img class="p-img" src="/media/haul-cut.webp" width="2200" height="1467" alt="" loading="lazy"></div>
+      <div class="p-cap"><span>03</span><h3>Haul</h3><p>Heavy rain turns haul roads to mud. The fleet parks, and fuel, crew and leases keep running.</p></div>
+    </a>
+  </div>
+  <p class="work-foot">What they do today: watch the forecast and absorb the loss, write weather days into contracts, or buy a season of insurance through a broker. <a href="/operators.html">The full picture, live prices and honest limits →</a></p>
+</section>
 
-<script type="module">
-import { createPublicClient, http, parseAbi, formatUnits, decodeEventLog } from "https://esm.sh/viem@2.21.0";
-import { sepolia } from "https://esm.sh/viem@2.21.0/chains";
+<!-- ============================================================ 03 · HOW -->
+<section class="settle" id="settle">
+  <video class="settle-vid" src="/media/satellite.mp4" poster="/media/satellite-poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+  <div class="settle-in">
+    <header class="sec-head light">
+      <span class="sec-no">03</span>
+      <h2>Two skies decide.<br>Nobody else does.</h2>
+      <p>One weather record can be wrong for your patch of ground. So the contract asks two that see the sky differently, and pays by a rule written before the day.</p>
+    </header>
+    <ol class="steps">
+      <li><span>i</span><div><h3>Pick the day</h3><p>Place, day, a rain limit and a payout. The price comes from ten years of both records at that exact spot, for the same two weeks of the year.</p></div></li>
+      <li><span>ii</span><div><h3>The day ends</h3><p>The contract itself buys two answers from Telegraph through on-chain jobs, from two named miners: <b>Open-Meteo archive</b> (miner <b class="mono" id="srcA">5130</b>) and <b>NASA POWER satellite</b> (miner <b class="mono" id="srcB">6151</b>).</p></div></li>
+      <li><span>iii</span><div><h3>Answers land</h3><p>About eight minutes later, both answers arrive on-chain. The keeper checks Telegraph's own records that the named miner really answered each job.</p></div></li>
+      <li><span>iv</span><div><h3>The rule pays</h3><p>No claim form. No adjuster. The rule below, and a transaction anyone can check.</p></div></li>
+    </ol>
+    <div class="rule">
+      <div><b>100%</b><span>Both records reach the limit</span></div>
+      <div><b>50%</b><span>They split</span></div>
+      <div><b>0</b><span>Neither does</span></div>
+    </div>
+    <aside class="caught">
+      <span class="tag">Real failure, caught</span>
+      <p>On 21 Nov we bought a day NASA had not published yet. Telegraph quietly gave that job to a different miner, which answered with the same number as the first source. The keeper compared Telegraph's job record with the miner the contract named, caught it, and sent the policy back. Nobody was paid on one source counted twice.</p>
+      <a href="https://github.com/Milliebanned/secondsky/blob/main/RECEIPTS.md">Every transaction and job record →</a>
+    </aside>
+  </div>
+</section>
 
-const USDC = "0xcc194e1a843B658526D0D5C431f670028582Ae17";
-const ES = "https://sepolia.etherscan.io";
-const OUR_TEST = "0xae11b21cc16223e359acfcde5ad86a9a03286e61"; // our own test holder wallet
-const CONTRACTS = [
-  { v: 2, addr: "0x0136e904ef5df658588c84d95f520a338b3bbcff", from: 12183620n, status: ["None","Active","Settling","Paid","PaidHalf","NotPaid","Refunded"] },
-  { v: 1, addr: "0x75e0129d3c30045d72a90676f24a63e2a1e6752f", from: 12181578n, status: ["None","Active","Settling","Paid","NotPaid","Disputed","Refunded"] },
-];
-const LABEL = { Active:"Waiting to settle", Settling:"Waiting for Telegraph", Paid:"Paid 100%", PaidHalf:"Sources split · paid 50%", NotPaid:"Stayed dry · not paid", Disputed:"Sources split · disputed (v1 rule)", Refunded:"Refunded" };
-const abi = parseAbi([
-  "function policyCount() view returns (uint256)",
-  "function lockedPayouts() view returns (uint256)",
-  "function sourceA() view returns (uint256)",
-  "function sourceB() view returns (uint256)",
-  "function answers(uint256) view returns (uint256)",
-  "function getPolicy(uint256) view returns ((address holder,uint96 payout,uint96 premium,uint96 jobReserve,uint64 settleAfter,uint64 thresholdE6,uint8 status,uint64 jobA,uint64 jobB,string location,string date))",
-  "function balanceOf(address) view returns (uint256)",
-  "event CoverBought(uint256 indexed policyId, address indexed holder, string location, string date, uint256 thresholdE6, uint256 payout, uint256 premium)",
-  "event SettleRequested(uint256 indexed policyId, uint256 jobA, uint256 jobB)",
-  "event Finalized(uint256 indexed policyId, uint8 status, uint256 rainA, uint256 rainB)",
-  "event Finalized(uint256 indexed policyId, uint8 status, uint256 rainA, uint256 rainB, uint256 paid)",
-  "event Retry(uint256 indexed policyId, bool okA, bool okB)",
-  "event WrongMiner(uint256 indexed policyId, uint256 jobId)",
-]);
-const c = createPublicClient({ chain: sepolia, transport: http("https://ethereum-sepolia-rpc.publicnode.com") });
-const $ = (id) => document.getElementById(id);
-const usd = (v) => Number(formatUnits(v, 6)).toLocaleString(undefined, { maximumFractionDigits: 2 });
-const esc = (s) => String(s).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+<!-- ============================================================ 04 · WHERE -->
+<section class="where" id="where">
+  <div class="globe-wrap">
+    <canvas id="globe" aria-label="A globe with every SecondSky policy marked on it"></canvas>
+    <img class="globe-fallback" src="/media/earth.jpg" alt="" hidden>
+    <p class="globe-note">Lit by the sun's real position right now. Drag to turn it.</p>
+  </div>
+  <div class="where-text">
+    <span class="sec-no">04</span>
+    <h2>Every policy,<br>where it stands</h2>
+    <p>Each mark is a real policy read from the contract when you opened this page. Its colour is how it ended.</p>
+    <ul class="key">
+      <li><i class="k-paid"></i>Paid 100%</li>
+      <li><i class="k-half"></i>Paid 50%: sources split</li>
+      <li><i class="k-none"></i>Stayed dry: not paid</li>
+      <li><i class="k-open"></i>Open: waiting for its day</li>
+    </ul>
+    <ol class="places" id="places"></ol>
+  </div>
+</section>
 
-function placeName(loc) {
-  const m = String(loc).match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
-  return m ? `<a href="https://www.openstreetmap.org/?mlat=${m[1]}&mlon=${m[2]}#map=9/${m[1]}/${m[2]}" target="_blank" rel="noopener">${esc(loc)}</a>` : esc(loc);
-}
-function unpack(v) {
-  if (!(v >> 255n)) return { state: "waiting" };
-  if (!((v >> 254n) & 1n)) return { state: "failed" };
-  return { state: "ok", mm: Number(v & ((1n << 64n) - 1n)) / 1e6 };
-}
+<!-- ============================================================ 05 · LEDGER -->
+<section class="paper" id="ledger">
+  <header class="sec-head dark">
+    <span class="sec-no">05</span>
+    <h2>The ledger</h2>
+    <p>Read from the contracts on every visit. Nothing here is typed in by hand. <span id="updated"></span></p>
+  </header>
+  <div class="numbers" id="stats"><div class="num"><b>…</b><span>Reading the chain</span></div></div>
+  <p class="honest"><b>Who bought these.</b> Testnet, test USDC. Most policies so far were bought by our own test wallet to exercise settlement against real recorded weather. They are not customers, and each is marked "our test".</p>
+  <div class="rows" id="policies"></div>
+  <p id="err" class="err"></p>
+</section>
 
-async function loadContract(k) {
-  const read = (functionName, args = [], address = k.addr) => c.readContract({ address, abi, functionName, args });
-  const [count, locked, bal, sA, sB] = await Promise.all([read("policyCount"), read("lockedPayouts"), read("balanceOf", [k.addr], USDC), read("sourceA"), read("sourceB")]);
-  const ids = Array.from({ length: Number(count) }, (_, i) => BigInt(i + 1));
-  const pols = await Promise.all(ids.map((id) => read("getPolicy", [id])));
-  const ans = await Promise.all(pols.map((p) => Promise.all([p.jobA ? read("answers", [p.jobA]) : 0n, p.jobB ? read("answers", [p.jobB]) : 0n])));
-  const logs = await c.getLogs({ address: k.addr, fromBlock: k.from, toBlock: "latest" });
-  const ev = {};
-  for (const l of logs) {
-    let d; try { d = decodeEventLog({ abi, data: l.data, topics: l.topics }); } catch { continue; }
-    if (d.args.policyId === undefined) continue;
-    const id = String(d.args.policyId); (ev[id] ??= {});
-    if (d.eventName === "CoverBought") ev[id].buy = l.transactionHash;
-    if (d.eventName === "SettleRequested") (ev[id].settle ??= []).push(l.transactionHash);
-    if (d.eventName === "Finalized") { ev[id].final = l.transactionHash; if (d.args.paid !== undefined) ev[id].paid = d.args.paid; }
-    if (d.eventName === "Retry") (ev[id].retry ??= []).push(l.transactionHash);
-    if (d.eventName === "WrongMiner") (ev[id].wrong ??= []).push(l.transactionHash);
-  }
-  const rows = pols.map((p, i) => ({ k, id: String(ids[i]), p, st: k.status[p.status], a: unpack(ans[i][0]), b: unpack(ans[i][1]), lim: Number(p.thresholdE6) / 1e6, e: ev[String(ids[i])] || {} }));
-  return { k, count, locked, bal, sA, sB, rows };
-}
+<!-- ============================================================ 06 · FORECAST -->
+<section class="paper alt" id="forecast">
+  <header class="sec-head dark">
+    <span class="sec-no">06</span>
+    <h2>Was the forecast right?</h2>
+    <p>The morning before each covered day, the keeper buys Telegraph's forecast for that place through <a id="fcLink" href="https://sepolia.etherscan.io/address/0x846f58e93abe4f25b843d75f6f767123e75adebf">ForecastLog</a>, and the network picks the miner. When the day settles, the forecast is scored against the two records the policy paid on. It "said rain" at a peak chance of 50% or more. The day "was wet" if the two records average 1 mm or more. The peak covers the whole window bought, which starts the day before, so it leans towards false alarms.</p>
+  </header>
+  <div class="numbers small" id="fcStats"><div class="num"><b>…</b><span>Loading</span></div></div>
+  <div class="fc-table"><table><thead><tr><th>Policy</th><th>Place, day</th><th>Warning</th><th>Forecast</th><th>Recorded A / B</th><th>Score</th></tr></thead><tbody id="fcRows"></tbody></table></div>
+</section>
 
-async function load() {
-  const all = await Promise.all(CONTRACTS.map(loadContract));
-  $("srcA").textContent = all[0].sA; $("srcB").textContent = all[0].sB;
-  const rows = all.flatMap((x) => x.rows.slice().reverse());
-  let premiums = 0n, paidOut = 0n, jobs = 0, decided = 0, agreed = 0, outside = 0;
-  const n = { full: 0, half: 0, none: 0, dispute: 0, open: 0 };
-  for (const r of rows) {
-    premiums += r.p.premium;
-    if (r.p.holder.toLowerCase() !== OUR_TEST) outside++;
-    if (r.st === "Paid") { n.full++; paidOut += r.p.payout; }
-    else if (r.st === "PaidHalf") { n.half++; paidOut += r.p.payout / 2n; }
-    else if (r.st === "NotPaid") n.none++;
-    else if (r.st === "Disputed") n.dispute++;
-    else if (r.st !== "Refunded") n.open++;
-    jobs += (r.e.settle?.length || 0) * 2;
-    if (r.a.state === "ok" && r.b.state === "ok") { decided++; if ((r.a.mm >= r.lim) === (r.b.mm >= r.lim)) agreed++; }
-  }
-  const v2 = all[0];
-  const stat = (k, v, note = "") => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${note}</div></div>`;
-  $("stats").innerHTML = [
-    stat("Policies", rows.length, `${n.open} open · ${outside} bought by other wallets`),
-    stat("Paid 100%", n.full, "both sources over the limit"),
-    stat("Paid 50%", n.half, "sources split (v2 rule)"),
-    stat("Not paid", n.none, "both under the limit"),
-    stat("Disputed", n.dispute, "split under the old v1 rule"),
-    stat("Paid out", usd(paidOut), "USDC to policy holders"),
-    stat("Sources agree", decided ? Math.round(100 * agreed / decided) + "%" : "–", `${agreed} of ${decided} answered policies`),
-    stat("Telegraph jobs", jobs, "bought by the contracts themselves"),
-    stat("Evidence cost", "2 USDC", "per settlement (2 × 1 USDC job)"),
-    stat("v2 pool", usd(v2.bal), `USDC · ${usd(v2.locked)} promised to open policies`),
-    stat("Premiums", usd(premiums), "USDC collected, both versions"),
-  ].join("");
+<!-- ============================================================ 07 · STUDY -->
+<section class="study" id="study">
+  <header class="sec-head light">
+    <span class="sec-no">07</span>
+    <h2>How often do two skies disagree?</h2>
+    <p>Open-Meteo against NASA POWER, daily rainfall, 10 cities, a full year (Nov 2025 to Oct 2026, 3,650 city-days). On most days both are dry. On days when at least one reaches the limit, they often split:</p>
+  </header>
+  <div class="split">
+    <div><b>55<small>%</small></b><span>at 5 mm<br>of 1,036 rainy days</span></div>
+    <div><b>64<small>%</small></b><span>at 10 mm<br>of 587 rainy days</span></div>
+    <div><b>73<small>%</small></b><span>at 20 mm<br>of 221 rainy days</span></div>
+  </div>
+  <p class="study-foot">A contract that trusts one record pays on that record's luck. The first version refused to pay on a split and left it to a person, which on these numbers means most rainy days end in review. Version 2 pays half, automatically, and prices that in. Method and code: <a href="https://github.com/Milliebanned/secondsky/blob/main/scripts/agreement_study.py">agreement_study.py</a>.</p>
+</section>
 
-  const max = Math.max(1, ...rows.flatMap((r) => [r.a.mm || 0, r.b.mm || 0, r.lim])) * 1.1;
-  const bar = (name, color, s, lim) => {
-    const w = s.state === "ok" ? (100 * s.mm / max) : 0;
-    const txt = s.state === "ok" ? `${s.mm} mm` : s.state === "failed" ? "no answer" : "waiting";
-    return `<div class="bar"><span class="lbl">${name}</span><div class="track"><div class="fill" style="width:${w}%;background:${color}"></div><div class="limit" style="left:${100 * lim / max}%"></div></div><span class="mm">${txt}</span></div>`;
-  };
-  const why = (r) => {
-    const paid = r.e.paid !== undefined ? usd(r.e.paid) : null;
-    if (r.st === "Paid") return `Both sources recorded at least ${r.lim} mm, so the holder was paid ${paid ?? usd(r.p.payout)} USDC.`;
-    if (r.st === "PaidHalf") return `One source recorded at least ${r.lim} mm and the other did not. By the v2 rule the holder was paid half: ${paid ?? usd(r.p.payout / 2n)} USDC.`;
-    if (r.st === "NotPaid") return `Both sources recorded less than ${r.lim} mm. The payout went back to the pool.`;
-    if (r.st === "Disputed") return `One source says over ${r.lim} mm, the other says under. Under the v1 rule the contract would not pick a side. This is why v2 exists.`;
-    if (r.st === "Settling") return "The contract has bought both answers and is waiting for Telegraph to deliver them.";
-    if (r.e.retry || r.e.wrong) return "A source failed or the wrong miner answered, so it went back to be bought again.";
-    return "Bought. Settles after its settle time.";
-  };
-  const link = (label, h) => h ? `<a href="${ES}/tx/${h}" target="_blank" rel="noopener">${label}</a>` : "";
-  const rec = (j) => `<a href="https://devnode.telegraphprotocol.com/engine/v1/job/${j}/result" target="_blank" rel="noopener">Telegraph record job ${j}</a>`;
-  $("policies").innerHTML = rows.map((r) => `
-    <div class="pol">
-      <div class="top"><div><span class="place">v${r.k.v} #${r.id} · ${placeName(r.p.location)}</span> <span class="meta">${esc(r.p.date)} · pays ${usd(r.p.payout)} USDC if rain ≥ ${r.lim} mm · premium ${usd(r.p.premium)} USDC · ${r.p.holder.toLowerCase() === OUR_TEST ? "our test" : `buyer ${r.p.holder.slice(0, 6)}…${r.p.holder.slice(-4)}`}</span></div>
-      <span class="badge b-${r.st}">${LABEL[r.st] || r.st}</span></div>
-      <div class="bars">${bar("A · Open-Meteo", "var(--a)", r.a, r.lim)}${bar("B · NASA POWER", "var(--b)", r.b, r.lim)}</div>
-      <div class="why">${why(r)}</div>
-      <div class="links">${link("bought", r.e.buy)}${(r.e.settle || []).map((h, i) => link(i ? "settle again" : "settle", h)).join("")}${(r.e.retry || []).map((h) => link("source failed → retry", h)).join("")}${(r.e.wrong || []).map((h) => link("wrong miner → rebuy", h)).join("")}${r.p.jobA ? rec(r.p.jobA) + rec(r.p.jobB) : ""}${link("finalized", r.e.final)}</div>
-    </div>`).join("") || `<p class="sub">No policies yet.</p>`;
-  $("updated").textContent = `Updated ${new Date().toLocaleTimeString()}.`;
-}
-load().catch((e) => { $("err").textContent = "Could not read the chain right now: " + (e.shortMessage || e.message); });
-</script>
+<!-- ============================================================ 08 · FINE PRINT -->
+<section class="fine" id="fine">
+  <div>
+    <span class="sec-no">08</span>
+    <h2>Who can do what</h2>
+    <dl>
+      <dt>Anyone</dt><dd>can settle a due policy, and finalize it a day after both answers arrive.</dd>
+      <dt>Operator</dt><dd>a hot key on the quote server. Signs prices up to a 50 USDC payout cap and finalizes at once after checking Telegraph's job records. If the wrong miner answered, it can only send the policy back to be bought again. It cannot pick an outcome, move money or change settings.</dd>
+      <dt>Owner</dt><dd>a cold key that never touches a server. Controls the pool and the sources, and can withdraw only money not promised to open policies.</dd>
+      <dt>Buyer</dt><dd>if a policy is never settled, takes the premium back after 7 days.</dd>
+    </dl>
+  </div>
+  <div>
+    <h2>Contracts and code</h2>
+    <ul class="addr">
+      <li><span>SecondSky v2</span><a class="mono" href="https://sepolia.etherscan.io/address/0x0136e904ef5df658588c84d95f520a338b3bbcff">0x0136e904…3bbcff</a><a href="https://repo.sourcify.dev/11155111/0x0136E904eF5dF658588c84d95F520A338b3BBcfF">verified</a></li>
+      <li><span>ForecastLog</span><a class="mono" href="https://sepolia.etherscan.io/address/0x846f58e93abe4f25b843d75f6f767123e75adebf">0x846f58e9…75adebf</a><a href="https://repo.sourcify.dev/11155111/0x846f58e93abe4f25b843d75f6f767123e75adebf">verified</a></li>
+      <li><span>SecondSky v1</span><a class="mono" href="https://sepolia.etherscan.io/address/0x75e0129d3c30045d72a90676f24a63e2a1e6752f">0x75e0129d…e6752f</a><em>first run</em></li>
+      <li><span>Telegraph Diamond</span><a class="mono" href="https://sepolia.etherscan.io/address/0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b">0x72a70e94…aa08b</a></li>
+      <li><span>NASA source</span><a class="mono" href="https://secondsky-nasa.vercel.app/api/verify?location=Nairobi&amp;date=2026-11-05">secondsky-nasa.vercel.app</a></li>
+      <li><span>Code</span><a href="https://github.com/Milliebanned/secondsky">github.com/Milliebanned/secondsky</a></li>
+    </ul>
+  </div>
+</section>
 
-<script>
-(async () => {
-  const el = (id) => document.getElementById(id);
-  const esc = (x) => String(x ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
-  const NAMES = {"6.4541,3.3947":"Lagos","-1.2833,36.8167":"Nairobi","51.5085,-0.1257":"London","6.2023,-1.668":"Obuasi"};
-  const job = (n) => `<a href="https://devnode.telegraphprotocol.com/engine/v1/job/${n}/result" target="_blank" rel="noopener">job ${n}</a>`;
-  try {
-    const d = await (await fetch("/api/forecasts")).json();
-    const s = d.summary || {};
-    const stat = (k, v, n) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`;
-    el("fcStats").innerHTML =
-      stat("Forecasts bought", s.forecasts ?? 0, "from Telegraph, 1 test USDC each") +
-      stat("Scored", s.scored ?? 0, "covered day settled") +
-      stat("Rain call right", s.rain_calls ? `${s.rain_calls_right}/${s.rain_calls}` : "–", "said rain vs was wet") +
-      stat("Brier score", s.mean_brier ?? "–", "0 perfect, 0.25 a coin flip") +
-      stat("High temp miss", s.mean_abs_high_error_c != null ? s.mean_abs_high_error_c + " °C" : "–", "average, either way") +
-      stat("Low temp miss", s.mean_abs_low_error_c != null ? s.mean_abs_low_error_c + " °C" : "–", "average, either way");
-    el("fcRows").innerHTML = (d.rows || []).map((r) => {
-      const f = r.forecast, rec = r.recorded, sc = r.score;
-      const fc = !r.answered ? "waiting for Telegraph" : !f ? "answered, record not published yet" :
-        `${f.chance_pct ?? "?"}% rain${f.rain_mm != null ? ", " + f.rain_mm + " mm" : ""} · ${f.high_c ?? "?"} / ${f.low_c ?? "?"} °C<br><span class="sub">${esc(r.answered_by)} · ${job(r.job)}</span>`;
-      const rc = rec ? `${rec.rain_a ?? "?"} / ${rec.rain_b ?? "?"} mm · ${rec.high_c ?? "?"} / ${rec.low_c ?? "?"} °C<br><span class="sub">${job(rec.jobA)} · ${job(rec.jobB)}</span>` : esc(r.note || "");
-      const scr = sc ? `<span class="${sc.rain_call_right ? "ok" : "bad"}">${sc.rain_call_right ? "right" : "wrong"}</span> (${sc.wet ? "wet" : "dry"}) · Brier ${sc.brier}<br>high ${sc.high_error_c > 0 ? "+" : ""}${sc.high_error_c} °C, low ${sc.low_error_c > 0 ? "+" : ""}${sc.low_error_c} °C` : "–";
-      const place = NAMES[r.location] || esc(r.location);
-      return `<tr><td>${r.policy ? "#" + r.policy : "test"}</td><td>${place}${r.date ? ", " + esc(r.date) : ""}</td><td>${r.warning_hours != null ? r.warning_hours + " h" : "–"}</td><td>${fc}</td><td>${rc}</td><td>${scr}</td></tr>`;
-    }).join("") || `<tr><td colspan="6" class="sub">No forecasts yet.</td></tr>`;
-  } catch (e) { el("fcStats").innerHTML = `<div class="stat"><div class="k">Forecasts</div><div class="v">–</div><div class="n">could not load</div></div>`; }
-})();
-</script>
+<footer class="foot">
+  <div class="foot-top">
+    <a class="mark big" href="/">Second<span>Sky</span></a>
+    <a class="btn-solid" href="/buy.html">Cover a day</a>
+  </div>
+  <p>Telegraph Hackathon Season II · Mission 06, Resources &amp; Agriculture. Ethereum Sepolia testnet, test USDC: no real money moves here.</p>
+  <p class="credits">Images: <a href="https://commons.wikimedia.org/wiki/File:Combine_in_wheat_field.jpg">combine</a> by Dan Kollmann, CC BY-SA 3.0 · <a href="https://commons.wikimedia.org/wiki/File:Storm_clouds_over_harvested_fields_-_geograph.org.uk_-_5987172.jpg">storm over fields</a> by Katie, CC BY-SA 2.0 · <a href="https://commons.wikimedia.org/wiki/File:A_Little_Bit_of_Hope_Breaking_Through.jpg">light breaking</a> by SavidgeMichael, CC BY 4.0 · <a href="https://commons.wikimedia.org/wiki/File:IMA_-_breaking_through_(2592098849).jpg">clearing sky</a> by Serge Melki, CC BY 2.0 · <a href="https://commons.wikimedia.org/wiki/File:Concrete_pouring_for_the_new_Spangdahlem_Elementary_School_(8062807).jpg">concrete pour</a>, U.S. Air Force, public domain · <a href="https://commons.wikimedia.org/wiki/File:20190802-OSEC-LSC-0450_(48443514146).jpg">haul truck</a>, USDA, public domain · <a href="https://commons.wikimedia.org/wiki/File:Radevormwald_-_Raindrops_on_a_window_07_(1)_ies.webm">rain on glass</a> by Frank Vincentz, CC BY-SA 3.0 · <a href="https://commons.wikimedia.org/wiki/File:Atmospheric_Rivers_Drench_the_Pacific_Northwest_(NESDIS_2023-12-08_2023_12_08_Atmospheric_River_Impacts_NO_TEXT).webm">satellite</a>, NOAA, public domain · Earth: NASA Blue Marble, public domain. Cut-outs and layers are adaptations, shared under the same licences.</p>
+</footer>
+
+<script src="/ss-sky.js" defer></script>
+<script type="module" src="/ss-home.js"></script>
 </body>
 </html>
