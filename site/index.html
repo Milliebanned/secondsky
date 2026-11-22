@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/media/sky-storm.jpg">
+<link rel="preload" as="video" href="/media/glass.mp4">
 <link rel="preload" as="image" href="/media/harvest-fg.webp">
 <link rel="stylesheet" href="/ss.css">
 </head>
@@ -31,59 +32,30 @@
 <!-- ============================================================ 01 · THE DAY -->
 <h1 class="sr-only">SecondSky: rain cover for the one day that has to stay dry, settled by two independent weather records bought from Telegraph</h1>
 <section class="sky" id="sky" aria-label="Three example days: harvest, a concrete pour and a mine haul, each from rain to payout">
-  <div class="stage" id="stage">
-    <div class="layer l-sky">
-      <img class="sky-img s0" src="/media/sky-storm.jpg" alt="">
-      <img class="sky-img s1" src="/media/sky-break.jpg" alt="" loading="lazy">
-      <img class="sky-img s2" src="/media/sky-clear.jpg" alt="" loading="lazy">
-    </div>
-    <div class="layer l-bg"><img id="sceneBg" alt=""></div>
-    <div class="layer l-word" aria-hidden="true"><div class="word" id="word">HARVEST</div></div>
-    <div class="layer l-fg"><img id="sceneFg" alt=""></div>
-    <div class="layer l-haze"></div>
-    <div class="layer l-scrim"></div>
-    <video class="layer l-glass" id="glass" src="/media/glass.mp4" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video>
-
-    <div class="hud">
-      <p class="eyebrow" id="eyebrow">Rain cover for the one day that has to stay dry</p>
-
-      <div class="gauge" aria-hidden="true">
-        <span class="g-label">Rain gauge</span>
-        <div class="g-tube"><div class="g-fill" id="gFill"></div><i style="--y:29%"></i><i style="--y:50%"></i><i style="--y:71%"></i></div>
-        <span class="g-read" id="gRead">0.0 mm</span>
-      </div>
-
-      <div class="beat" id="beat">
-        <div class="b-top"><span class="b-time" id="bTime">06:00 · Tuesday</span><span class="b-step" id="bStep" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></span></div>
-        <p class="b-text" id="bText">Forty hectares are ready to cut. The forecast says rain is likely.</p>
-        <span class="b-note">An example day. Real policies are in the ledger below.</span>
-      </div>
-
-      <div class="hero-cta">
-        <a class="btn-ghost" href="/buy.html">Cover a day</a>
-        <a class="btn-text" href="#ledger">See every real policy</a>
-      </div>
-
-      <div class="scenes" role="tablist" aria-label="Choose a scene">
-        <button class="sc-arrow" id="scPrev" aria-label="Previous scene">←</button>
-        <button class="sc on" data-scene="0" role="tab">Harvest</button>
-        <button class="sc" data-scene="1" role="tab">Pour</button>
-        <button class="sc" data-scene="2" role="tab">Haul</button>
-        <button class="sc-arrow" id="scNext" aria-label="Next scene">→</button>
-      </div>
-
-      <div class="readout" id="readout" aria-hidden="true">
-        <div><span>Open-Meteo archive</span><b id="rA">14.2 mm</b></div>
-        <div><span>NASA POWER satellite</span><b id="rB">11.8 mm</b></div>
-        <div class="r-limit"><span>Limit</span><b>10 mm</b></div>
-      </div>
-      <div class="stamp-hero" id="stampHero" aria-hidden="true">Paid 100%</div>
-    </div>
-    <div class="curtain" id="curtain" aria-hidden="true"></div>
-    <div class="scene-card" id="sceneCard" aria-hidden="true"><b>01 / 03</b><span>Harvest</span></div>
-    <div class="scroll-cue" id="cue"><span>Scroll</span><i></i></div>
-  </div>
+  <!-- the three scenes are built by /ss-sky.js; this is what shows without scripts -->
+  <noscript><div class="noscript-hero"><img src="/media/harvest.jpg" alt="A combine harvester in a wheat field"><p>Rain cover for the one day that has to stay dry.</p></div></noscript>
 </section>
+
+<!-- fixed to the screen while you are in the hero: the window you look through, and the controls -->
+<video class="glass-fixed" id="glass" src="/media/glass.mp4" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video>
+<div class="hero-hud" id="hud">
+  <div class="gauge" aria-hidden="true">
+    <span class="g-label">Rain gauge</span>
+    <div class="g-tube"><div class="g-fill" id="gFill"></div><i style="--y:29%"></i><i style="--y:50%"></i><i style="--y:71%"></i></div>
+    <span class="g-read" id="gRead">0.0 mm</span>
+  </div>
+  <div class="hero-cta">
+    <a class="btn-ghost" href="/buy.html">Cover a day</a>
+    <a class="btn-text" href="#ledger">See every real policy</a>
+  </div>
+  <div class="scenes" role="tablist" aria-label="Jump to a scene">
+    <button class="sc-arrow" id="scPrev" aria-label="Previous scene">←</button>
+    <button class="sc on" data-scene="0" role="tab">Harvest</button>
+    <button class="sc" data-scene="1" role="tab">Pour</button>
+    <button class="sc" data-scene="2" role="tab">Haul</button>
+    <button class="sc-arrow" id="scNext" aria-label="Next scene">→</button>
+  </div>
+</div>
 
 <!-- ============================================================ 02 · WHO -->
 <section class="work" id="work">
