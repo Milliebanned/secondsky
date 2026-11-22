@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SecondSky for site operators</title>
+<meta name="description" content="Who SecondSky is for, what they do today, live prices for real sites, and the honest limits of single-day rain cover.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f7f4; --card:#ffffff; --ink:#15201b; --muted:#5d6a63; --line:#e2e6e1;
+  --a:#2f6fd0; --wet:#1f8a5b; --dis:#c0392b; --wait:#a37b00; --chip:#eef1ec;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1512; --card:#161e1a; --ink:#e7ede9; --muted:#97a59d; --line:#26322c;
+    --a:#6ea2f0; --wet:#3fbf86; --dis:#ef6b5b; --wait:#e0b12e; --chip:#1e2823;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+nav{padding:18px 0;font-size:14px;display:flex;gap:16px;flex-wrap:wrap}
+nav a{color:var(--muted);text-decoration:none} nav a:hover{color:var(--ink)}
+header{padding:24px 0 8px}
+.tag{display:inline-block;font:500 12px/1 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 10px;margin-bottom:18px}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.12;margin:0 0 14px;letter-spacing:-.02em}
+.lede{color:var(--muted);font-size:18px;margin:0}
+h2{font-size:21px;margin:44px 0 8px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card b{display:block;margin-bottom:4px}
+.card p{font-size:14px;color:var(--muted);margin:0}
+.tablewrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:14px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{font:500 11px/1.3 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n{font-family:"JetBrains Mono",monospace;text-align:right;font-variant-numeric:tabular-nums}
+th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+.limits{display:grid;gap:10px;margin-top:14px}
+.limit{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--wait);border-radius:10px;padding:12px 16px;font-size:15px}
+.limit b{display:block}
+.limit span{color:var(--muted);font-size:14px}
+ol{padding-left:20px} li{margin-bottom:6px}
+a{color:var(--a)}
+.cta{display:inline-block;margin:8px 10px 0 0;background:var(--wet);color:#fff;font-weight:600;padding:11px 16px;border-radius:10px;text-decoration:none}
+.cta.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+footer{padding:40px 0 60px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><a href="/">Live stats</a><a href="/buy.html">Buy or replay</a><a href="/operators.html"><b>For site operators</b></a><a href="https://github.com/Milliebanned/secondsky">Code</a></nav>
+
+<header>
+  <div class="tag">Who this is for · Sepolia testnet</div>
+  <h1>For the day that has to stay dry</h1>
+  <p class="lede">Some work only happens on one day. If it rains, the crew still gets paid, the trucks still get paid, and the work moves. SecondSky pays out for that one day, decided by recorded rainfall, without a claim form.</p>
+</header>
+
+<h2>Who loses money on one wet day</h2>
+<div class="cards">
+  <div class="card"><b>Open-pit mine operators</b><p>Heavy rain turns haul roads to mud. Trucks slow or stop, and a planned blast can slip. A shift is lost, and the fleet's costs are not.</p></div>
+  <div class="card"><b>Construction site managers</b><p>A concrete pour is booked days ahead: pump, trucks, crew. Rain on the day means cancelling or risking a bad pour.</p></div>
+  <div class="card"><b>Farm and field contractors</b><p>Harvest, spraying and hauling run on short windows. A wet day idles hired machines and crews.</p></div>
+</div>
+
+<h2>What they do today</h2>
+<ol>
+  <li><b>Watch the forecast and absorb the loss.</b> Forecasts help plan, but they do not pay when they are wrong.</li>
+  <li><b>Write weather days into contracts.</b> Time is extended, but the day's costs still land on someone.</li>
+  <li><b>Buy weather insurance.</b> It exists, but it is usually written for a season or a large project, through a broker, and a claim needs evidence and someone to decide it.</li>
+</ol>
+<p class="muted">What is missing is cover for <b>one named day at one place</b>, bought in minutes, that pays by rule from public records.</p>
+
+<h2>What SecondSky does</h2>
+<div class="cards">
+  <div class="card"><b>Any day, 1 to 90 days ahead</b><p>Choose the place, the day, the rain limit and the payout.</p></div>
+  <div class="card"><b>Priced from that spot's history</b><p>10 years of both sources, for the same 2 weeks of the year, at that exact place.</p></div>
+  <div class="card"><b>Two independent records</b><p>Open-Meteo archive and NASA POWER, each bought from Telegraph by the contract itself.</p></div>
+  <div class="card"><b>Pays by rule</b><p>Both over the limit: 100%. They split: 50%. Neither: nothing. Nobody decides it by hand.</p></div>
+</div>
+
+<h2>Live prices for real places</h2>
+<p class="muted">Asked from the live price engine when you opened this page: a 50 test USDC payout on <b id="day">15 Dec 2026</b>. "Chance" is the share of that payout the history says you would get back on average.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th>Place</th><th class="n">Rain limit</th><th class="n">Chance</th><th class="n">Expected back</th><th class="n">Price</th><th class="n">Of which, evidence</th></tr></thead>
+  <tbody id="rows"><tr><td colspan="6" class="muted">Asking the price engine…</td></tr></tbody>
+</table></div>
+<p class="muted" style="margin-top:10px;font-size:14px">Price = payout × chance × 1.2 (floor 2%) + 2 USDC. The 2 USDC pays Telegraph for the two answers that settle the policy.</p>
+
+<h2>The honest limits</h2>
+<div class="limits">
+  <div class="limit"><b>Small covers are expensive.</b><span>The 2 USDC evidence fee is fixed. On a dry-season day with a 50 USDC payout, you pay several times the expected payout. It only makes sense when the payout is large compared with 2 USDC.</span></div>
+  <div class="limit"><b>It measures a grid cell, not your site.</b><span>NASA POWER reports an area about 50 km across, and Open-Meteo is a modelled archive. A storm can miss the cell and hit your pit, or the other way round. That is why it takes two sources, and pays 50% when they split.</span></div>
+  <div class="limit"><b>The two sources often disagree.</b><span>Over a year in 10 cities, on days when at least one source saw 10 mm, they split 64% of the time. See the <a href="/#study">study</a>.</span></div>
+  <div class="limit"><b>Payment is not same-day.</b><span>NASA publishes a few days late, so a policy settles about 5 to 7 days after the day. Telegraph then answers in about 8 minutes.</span></div>
+  <div class="limit"><b>Testnet only.</b><span>Sepolia, test USDC, payouts capped at 50. No real money, and no real customer yet.</span></div>
+</div>
+
+<h2>What I do not know yet</h2>
+<p>I have not spoken to a paying customer. These are the questions that decide whether this is a product:</p>
+<ol>
+  <li>What does one lost day cost you, roughly: crew, machines, penalties?</li>
+  <li>How many days a year does rain stop you?</li>
+  <li>How far off can the rain record be before the payout feels wrong?</li>
+  <li>Is a payout 5 to 7 days later fine, or does it need to be the same day?</li>
+  <li>What would you pay for one day's cover?</li>
+</ol>
+<p>If you run a site, a pit, a farm or a crew, your answers help more than anything else. You can also try it with test money: buy cover, or replay a past day and watch it settle.</p>
+<a class="cta" href="https://github.com/Milliebanned/secondsky/issues/new?title=Operator%20feedback&body=What%20I%20run%3A%0AWhat%20one%20lost%20day%20costs%3A%0ARain%20days%20a%20year%3A%0AAcceptable%20error%3A%0APayout%20timing%3A%0AWhat%20I%20would%20pay%3A">Answer the questions</a>
+<a class="cta alt" href="/buy.html">Try it with test money →</a>
+
+<footer>SecondSky · Telegraph Hackathon Season II, Mission 06 · Sepolia testnet, test USDC. Prices come from <span style="font-family:JetBrains Mono,monospace">/api/quote</span> and the same engine the buy page uses.</footer>
+</div>
+
+<script>
+const SITES = [
+  ["Kalgoorlie-Boulder, Australia (gold mining)", -30.7461, 121.4742],
+  ["Obuasi, Ghana (gold mining)", 6.2023, -1.668],
+  ["Lagos, Nigeria (construction)", 6.4541, 3.3947],
+  ["Nairobi, Kenya (construction)", -1.2833, 36.8167],
+];
+const LIMITS = [5, 10];
+const PAYOUT = 50;
+// 15 Dec this year, or next year if that is too close or past
+function pickDay(){
+  const now = new Date(), y = now.getUTCFullYear();
+  let d = new Date(Date.UTC(y, 11, 15));
+  if ((d - now) / 864e5 < 2) d = new Date(Date.UTC(y + 1, 0, 15));
+  return d.toISOString().slice(0, 10);
+}
+const day = pickDay();
+document.getElementById("day").textContent = new Date(day + "T00:00:00Z").toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+async function quote(lat, lon, th){
+  try {
+    const r = await fetch("/api/quote", {method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({holder:"0x000000000000000000000000000000000000dEaD", lat, lon, date: day, threshold_mm: th, payout_usdc: PAYOUT})});
+    return await r.json();
+  } catch { return {error:"network"}; }
+}
+(async () => {
+  const jobs = [];
+  for (const [name, lat, lon] of SITES) for (const th of LIMITS) jobs.push(quote(lat, lon, th).then((q) => ({name, th, q})));
+  const res = await Promise.all(jobs);
+  document.getElementById("rows").innerHTML = res.map(({name, th, q}) => {
+    if (q.error || q.premium_usdc == null) return `<tr><td>${esc(name)}</td><td class="n">${th} mm</td><td colspan="4" class="muted">${esc(q.error || "no price")}</td></tr>`;
+    const back = PAYOUT * q.expected_share;
+    return `<tr><td>${esc(name)}</td><td class="n">${th} mm</td><td class="n">${(q.expected_share*100).toFixed(1)}%</td><td class="n">${back.toFixed(2)}</td><td class="n">${Number(q.premium_usdc).toFixed(2)}</td><td class="n">2.00</td></tr>`;
+  }).join("");
+})();
+</script>
+</body>
+</html>
