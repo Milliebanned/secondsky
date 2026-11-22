@@ -53,3 +53,9 @@ NASA POWER published 19 Nov on 22 Nov, and the keeper now waits for that before 
 | [18](https://devnode.telegraphprotocol.com/engine/v1/job/18/result) | secondsky-nasa-rainfall (named miner) | 0.94 mm |
 
 Both under the 10 mm limit, so **Not paid**. Finalize: [0x275a64f1…](https://sepolia.etherscan.io/tx/0x275a64f1c808023b6bb68c768d22898d2526a132a28f10586e317c7f0fd82d90)
+
+## Forecast vs recorded (from 22 Nov)
+[ForecastLog](https://sepolia.etherscan.io/address/0x846f58e93abe4f25b843d75f6f767123e75adebf) buys a `WEATHER_FORECAST_GENERAL` answer from Telegraph (the router picks the miner) the morning before each covered day. When the day settles, [`/api/forecasts`](https://secondsky.milliebanned.xyz/api/forecasts) scores it against the two recorded answers.
+
+- Test purchase, 22 Nov: [job 19](https://devnode.telegraphprotocol.com/engine/v1/job/19/result), London next 24 h. Answered by `a1-preflight` in 708 s: 3% rain, 0.1 mm, high 9 °C, low 3.9 °C. Ask tx [0x43110d9b…](https://sepolia.etherscan.io/tx/0x43110d9b1e4647269c1c01038a61cd842224dce939204c99a6e811f8c35eb27b).
+- Policies #4–#11 (our test wallet): Lagos, Nairobi, London and Obuasi, for 24 and 25 Nov, 5 mm limit, 20 test USDC payout, bought at the live quoted price. Each gets a forecast the morning before and settles once NASA publishes.

@@ -24,6 +24,7 @@ Status: Telegraph Hackathon Season II, Mission 06 (Resources & Agriculture). **S
 |---|---|---|
 | SecondSky v2 (current) | `0x0136e904ef5df658588c84d95f520a338b3bbcff` | [Sourcify exact match](https://repo.sourcify.dev/11155111/0x0136E904eF5dF658588c84d95F520A338b3BBcfF) |
 | SecondSky v1 (first run) | `0x75e0129d3c30045d72a90676f24a63e2a1e6752f` | its receipts are in [RECEIPTS.md](RECEIPTS.md) |
+| ForecastLog | `0x846f58e93abe4f25b843d75f6f767123e75adebf` | buys Telegraph's forecast the day before each covered day · [Sourcify exact match](https://repo.sourcify.dev/11155111/0x846f58e93abe4f25b843d75f6f767123e75adebf) |
 | Telegraph Diamond | `0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b` | |
 
 ## Who can do what (v2)
@@ -43,6 +44,7 @@ Status: Telegraph Hackathon Season II, Mission 06 (Resources & Agriculture). **S
 | `contracts/SecondSkyV2.sol` | The cover contract |
 | `scripts/test-secondsky-v2.mjs` | 50 local checks: payout rules, retry, wrong-miner, finalize window, role limits, refund, accounting, callback gas |
 | `api/quote.js` | Prices a day from 10 years of both sources at that spot and signs the quote |
+| `contracts/ForecastLog.sol`, `api/forecasts.js` | Forecast vs recorded: the forecast is bought on-chain the morning before, then scored against the two records (rain call, Brier, high/low error, hours of warning) |
 | `api/keeper.js` | Daily cron plus a per-policy endpoint: settles, checks Telegraph's job records, finalizes |
 | `site/` | Live stats page and buy page |
 | `miner/` | NASA POWER miner for `WEATHER_FORECAST_VERIFY_GENERAL` (plus forecast scoring and weather-event resolution) |
