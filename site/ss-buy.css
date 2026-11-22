@@ -80,3 +80,16 @@ input[type=date]{font-family:var(--f);min-height:44px}
   .t-grid b{font-size:16px}
   .ticket{bottom:16px}
 }
+
+/* wallet, once connected */
+.w-on{display:flex;align-items:center;gap:10px;font:500 12px/1 var(--m);letter-spacing:.1em;text-transform:uppercase}
+.w-on b{font-weight:600;color:var(--good)}
+.w-on span:last-child{color:var(--paper-mute)}
+.w-dot{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(63,143,90,.18)}
+.w-addr{margin:12px 0 14px;font:600 22px/1 var(--m)!important;letter-spacing:-.02em;color:var(--paper-ink)}
+.w-bal{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--paper-line);border-bottom:1px solid var(--paper-line)}
+.w-bal div{padding:12px 0}
+.w-bal div + div{padding-left:18px;border-left:1px solid var(--paper-line)}
+.w-bal b{display:block;font:800 28px/1 var(--f);font-stretch:68%}
+.w-bal span{display:block;margin-top:6px;font:500 11px/1.3 var(--m);letter-spacing:.06em;text-transform:uppercase;color:var(--paper-mute)}
+.w-need{margin:14px 0 0;padding:12px 0 0;font-size:14.5px;color:#3b3a34;border-top:2px solid var(--vest)}

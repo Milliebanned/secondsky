@@ -59,8 +59,10 @@
         <div class="btns">
           <button id="connect" class="btn-solid">Connect wallet</button>
           <button id="mint" class="btn-line" hidden>Get 50 test USDC</button>
+          <button id="recheck" class="btn-line" hidden>Check balance</button>
         </div>
-        <p class="hint">No Sepolia ETH? Use a free faucet, for example <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">Google's</a>.</p>
+        <div class="err" id="werr"></div>
+        <p class="hint" id="faucetHint">No Sepolia ETH? Use a free faucet, for example <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">Google's</a>.</p>
       </div>
     </section>
 
@@ -150,25 +152,44 @@ const log = (html) => { const d = document.createElement("div"); d.innerHTML = h
 const txLink = (label, h) => `${label}: <a href="${ES}/tx/${h}" target="_blank" rel="noopener">${h.slice(0, 10)}…</a>`;
 const errMsg = (e) => (e.shortMessage || e.message || String(e)).split("\n")[0];
 
+const FAUCET = "https://cloud.google.com/application/web3/faucet/ethereum/sepolia";
+let ethBal = 0n;
 async function refreshWallet() {
   const [eth, usdc] = await Promise.all([pub.getBalance({ address: me }), pub.readContract({ address: USDC, abi: erc, functionName: "balanceOf", args: [me] })]);
-  $("wallet").innerHTML = `<span class="mono">${me}</span><br>${Number(formatUnits(eth, 18)).toFixed(4)} Sepolia ETH · ${Number(formatUnits(usdc, 6)).toFixed(2)} test USDC`;
+  ethBal = eth;
+  const e = Number(formatUnits(eth, 18)), u = Number(formatUnits(usdc, 6));
+  $("wallet").innerHTML = `<div class="w-on"><span class="w-dot"></span><b>Connected</b><span>Sepolia</span></div>
+    <div class="w-addr mono" title="${me}">${me.slice(0, 6)}…${me.slice(-4)}</div>
+    <div class="w-bal"><div><b>${e.toFixed(4)}</b><span>Sepolia ETH · for gas</span></div><div><b>${u.toFixed(2)}</b><span>test USDC · for premiums</span></div></div>
+    ${eth === 0n ? `<p class="w-need">This wallet has no Sepolia ETH, so it cannot send any transaction yet, not even to get test USDC. Get a little free ETH from a <a href="${FAUCET}" target="_blank" rel="noopener">faucet</a>, then press <b>Check balance</b>.</p>` : ""}`;
+  $("mint").hidden = eth === 0n;
+  $("recheck").hidden = eth !== 0n;
 }
-$("connect").onclick = async () => {
-  if (!window.ethereum) { $("wallet").textContent = "No browser wallet found. Install MetaMask or Rabby, then reload."; return; }
+async function connect(silent) {
+  if (!window.ethereum) { if (!silent) $("wallet").textContent = "No browser wallet found. Install MetaMask or Rabby, then reload."; return; }
   try {
     wallet = createWalletClient({ chain: sepolia, transport: custom(window.ethereum) });
-    [me] = await wallet.requestAddresses();
-    try { await wallet.switchChain({ id: sepolia.id }); } catch { await wallet.addChain({ chain: sepolia }); }
-    $("connect").hidden = true; $("mint").hidden = false;
+    [me] = silent ? await wallet.getAddresses() : await wallet.requestAddresses();
+    if (!me) return;
+    if (!silent) { try { await wallet.switchChain({ id: sepolia.id }); } catch { await wallet.addChain({ chain: sepolia }); } }
+    $("connect").hidden = true; $("faucetHint").hidden = true;
     await refreshWallet();
-  } catch (e) { $("wallet").textContent = "Could not connect: " + errMsg(e); }
-};
+  } catch (e) { if (!silent) $("wallet").textContent = "Could not connect: " + errMsg(e); }
+}
+$("connect").onclick = () => connect(false);
+$("recheck").onclick = () => me && refreshWallet();
+// already connected on an earlier visit: show it straight away, without a pop-up
+connect(true);
+if (window.ethereum && window.ethereum.on) window.ethereum.on("accountsChanged", (acc) => { me = acc[0]; if (me) refreshWallet(); else location.reload(); });
 $("mint").onclick = async () => {
+  $("werr").textContent = "";
+  if (ethBal === 0n) { $("werr").textContent = "You need a little Sepolia ETH for gas first."; return; }
+  $("mint").disabled = true; $("mint").textContent = "Minting…";
   try {
     const h = await wallet.writeContract({ account: me, address: USDC, abi: erc, functionName: "mint", args: [me, 50_000_000n] });
-    $("mint").disabled = true; await pub.waitForTransactionReceipt({ hash: h }); $("mint").disabled = false; await refreshWallet();
-  } catch (e) { $("wallet").insertAdjacentHTML("beforeend", `<div class="err">${esc(errMsg(e))}</div>`); }
+    await pub.waitForTransactionReceipt({ hash: h }); await refreshWallet();
+  } catch (e) { $("werr").textContent = /reject|denied/i.test(errMsg(e)) ? "You cancelled it in your wallet. Nothing was sent." : errMsg(e); }
+  $("mint").disabled = false; $("mint").textContent = "Get 50 test USDC";
 };
 
 // mode + dates
