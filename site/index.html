@@ -30,7 +30,7 @@
 
 <!-- ============================================================ 01 · THE DAY -->
 <h1 class="sr-only">SecondSky: rain cover for the one day that has to stay dry, settled by two independent weather records bought from Telegraph</h1>
-<section class="sky" id="sky" aria-label="An example day: rain, then the payout">
+<section class="sky" id="sky" aria-label="Three example days: harvest, a concrete pour and a mine haul, each from rain to payout">
   <div class="stage" id="stage">
     <div class="layer l-sky">
       <img class="sky-img s0" src="/media/sky-storm.jpg" alt="">
@@ -45,7 +45,7 @@
     <video class="layer l-glass" id="glass" src="/media/glass.mp4" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video>
 
     <div class="hud">
-      <p class="eyebrow" id="eyebrow">One day · one place · two skies</p>
+      <p class="eyebrow" id="eyebrow">Rain cover for the one day that has to stay dry</p>
 
       <div class="gauge" aria-hidden="true">
         <span class="g-label">Rain gauge</span>
@@ -54,7 +54,7 @@
       </div>
 
       <div class="beat" id="beat">
-        <span class="b-time" id="bTime">06:00 · Tuesday</span>
+        <div class="b-top"><span class="b-time" id="bTime">06:00 · Tuesday</span><span class="b-step" id="bStep">1 / 4</span></div>
         <p class="b-text" id="bText">Forty hectares are ready to cut. The forecast says rain is likely.</p>
         <span class="b-note">An example day. Real policies are in the ledger below.</span>
       </div>
@@ -79,7 +79,9 @@
       </div>
       <div class="stamp-hero" id="stampHero" aria-hidden="true">Paid 100%</div>
     </div>
-    <div class="scroll-cue" id="cue"><span>Scroll the weather</span><i></i></div>
+    <div class="curtain" id="curtain" aria-hidden="true"></div>
+    <div class="scene-card" id="sceneCard" aria-hidden="true"><b>01 / 03</b><span>Harvest</span></div>
+    <div class="scroll-cue" id="cue"><span>Scroll</span><i></i></div>
   </div>
 </section>
 
