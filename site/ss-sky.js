@@ -132,7 +132,7 @@
     if (b !== curBeat) {
       curBeat = b;
       const [tm, txt] = SCENES[i].beats[b];
-      bTime.textContent = tm; bText.textContent = txt; bStep.textContent = `${b + 1} / 4`;
+      bTime.textContent = tm; bText.textContent = txt; [...bStep.children].forEach((x, j) => x.classList.toggle("on", j <= b));
       beat.classList.remove("swap"); void beat.offsetWidth; beat.classList.add("swap");
     }
     beat.style.opacity = String(clamp(1 - Math.max(out, inn) * 1.6, 0, 1));
