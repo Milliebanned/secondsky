@@ -76,8 +76,8 @@ Get free Sepolia ETH from a faucet, open https://secondsky.milliebanned.xyz/buy.
 
 | | Address |
 |---|---|
-| SecondSky v2 | `0x0136e904ef5df658588c84d95f520a338b3bbcff` ([Sourcify exact match](https://repo.sourcify.dev/11155111/0x0136E904eF5dF658588c84d95F520A338b3BBcfF)) |
-| ForecastLog | `0x846f58e93abe4f25b843d75f6f767123e75adebf` ([Sourcify exact match](https://repo.sourcify.dev/11155111/0x846f58e93abe4f25b843d75f6f767123e75adebf)) |
+| SecondSky v2 | `0x0136e904ef5df658588c84d95f520a338b3bbcff` ([Etherscan, verified](https://sepolia.etherscan.io/address/0x0136e904ef5df658588c84d95f520a338b3bbcff#code) · [Sourcify exact match](https://repo.sourcify.dev/11155111/0x0136E904eF5dF658588c84d95F520A338b3BBcfF)) |
+| ForecastLog | `0x846f58e93abe4f25b843d75f6f767123e75adebf` ([Etherscan, verified](https://sepolia.etherscan.io/address/0x846f58e93abe4f25b843d75f6f767123e75adebf#code) · [Sourcify exact match](https://repo.sourcify.dev/11155111/0x846f58e93abe4f25b843d75f6f767123e75adebf)) |
 | SecondSky v1 (first run) | `0x75e0129d3c30045d72a90676f24a63e2a1e6752f` |
 | Telegraph Diamond | `0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b` |
 
