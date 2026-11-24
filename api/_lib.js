@@ -60,16 +60,44 @@ export async function nasaReady(location, date) {
 
 // ForecastLog: buys a Telegraph WEATHER_FORECAST_GENERAL answer the day before a covered day.
 export const FORECAST = "0x846f58e93abe4f25b843d75f6f767123e75adebf";
-export const FORECAST_BLOCK = 12188612n;
 export const forecastAbi = parseAbi([
   "function ask(uint256 policyId, string location, uint256 windowHours) returns (uint256)",
   "function answers(uint256) view returns (uint256)",
+  "function jobPolicy(uint256) view returns (uint256)",
   "event Asked(uint256 indexed jobId, uint256 indexed policyId, string location, uint256 windowHours)",
 ]);
+// Every forecast ForecastLog bought. Public RPCs prune old logs, so this does not read the Asked event history:
+// it walks Telegraph job ids from the first forecast (job 19), keeps the ones Telegraph's record says ForecastLog
+// created, and reads the policy number from the contract (jobPolicy is written in the same call that buys the job,
+// so a job that has not been answered yet is still found).
+export const FORECAST_FIRST_JOB = 19;
+let askCache = null; // one scan per function run (the keeper asks once per policy)
 export async function forecastAsks(policyId) {
-  const logs = await pub.getContractEvents({ address: FORECAST, abi: forecastAbi, eventName: "Asked",
-    args: policyId === undefined ? {} : { policyId: BigInt(policyId) }, fromBlock: FORECAST_BLOCK });
-  return logs.map((l) => ({ jobId: l.args.jobId, policyId: l.args.policyId, location: l.args.location, windowHours: l.args.windowHours, block: l.blockNumber, tx: l.transactionHash }));
+  if (!askCache || Date.now() - askCache.at > 60_000) askCache = { at: Date.now(), list: scanForecastJobs() };
+  const all = await askCache.list.catch((e) => { askCache = null; throw e; });
+  return policyId === undefined ? all : all.filter((a) => a.policyId === BigInt(policyId));
+}
+async function scanForecastJobs() {
+  const recs = new Map();
+  let id = FORECAST_FIRST_JOB, misses = 0, last = FORECAST_FIRST_JOB - 1;
+  while (misses < 6 && id < FORECAST_FIRST_JOB + 2000) {
+    const ids = Array.from({ length: 6 }, (_, i) => id + i);
+    const got = await Promise.all(ids.map((j) => jobRecord(j).catch(() => null)));
+    got.forEach((r, i) => { if (r) { recs.set(ids[i], r); last = ids[i]; misses = 0; } else misses++; });
+    id += 6;
+  }
+  const ids = Array.from({ length: last + 6 - FORECAST_FIRST_JOB + 1 }, (_, i) => FORECAST_FIRST_JOB + i);
+  const pol = await Promise.all(ids.map((j) => pub.readContract({ address: FORECAST, abi: forecastAbi, functionName: "jobPolicy", args: [BigInt(j)] })));
+  const out = [];
+  ids.forEach((j, i) => {
+    const r = recs.get(j);
+    const ours = r ? (r.agent || "").toLowerCase() === FORECAST : pol[i] > 0n;
+    if (!ours) return;
+    out.push({ jobId: BigInt(j), policyId: pol[i], record: r || null,
+      windowHours: r?.raw_response?.window_hours ?? null,
+      askedAt: r?.created_at ? Math.floor(Date.parse(r.created_at) / 1000) : null });
+  });
+  return out;
 }
 // Telegraph's full record of a job (raw answer included), or null.
 export async function jobRecord(jobId) {

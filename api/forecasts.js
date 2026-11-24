@@ -17,7 +17,7 @@ const avg = (a, b) => (a === null || b === null ? null : (a + b) / 2);
 
 function chanceOf(raw) {
   if (!raw) return null;
-  const direct = num(raw.precipitation_probability_pct);
+  const direct = num(raw.precipitation_probability_pct ?? raw.precip_prob_pct);
   if (direct !== null) return direct;
   const m = /(\d{1,3})\s*%/.exec(raw.content || raw.summary || "");
   return m ? Number(m[1]) : null;
@@ -28,23 +28,22 @@ export default async function handler(req, res) {
   try {
     const asks = await forecastAsks();
     const rows = await Promise.all(asks.map(async (a) => {
-      const [packed, rec, block] = await Promise.all([
-        pub.readContract({ address: FORECAST, abi: forecastAbi, functionName: "answers", args: [a.jobId] }),
-        jobRecord(a.jobId),
-        pub.getBlock({ blockNumber: a.block }),
-      ]);
+      const packed = await pub.readContract({ address: FORECAST, abi: forecastAbi, functionName: "answers", args: [a.jobId] });
+      const rec = a.record;
       const raw = rec && typeof rec.raw_response === "object" ? rec.raw_response : null;
       const row = {
-        policy: Number(a.policyId), location: a.location, window_hours: Number(a.windowHours),
-        asked_at: Number(block.timestamp), ask_tx: a.tx, job: Number(a.jobId),
+        policy: Number(a.policyId), location: raw && raw.lat !== undefined ? `${raw.lat},${raw.lon}` : null,
+        window_hours: a.windowHours === null ? null : Number(a.windowHours),
+        asked_at: a.askedAt, record_url: `https://devnode.telegraphprotocol.com/engine/v1/job/${a.jobId}/result`, job: Number(a.jobId),
         answered: (packed >> 255n) === 1n, answered_by: rec?.miner_slug || null,
-        forecast: raw ? { chance_pct: chanceOf(raw), rain_mm: num(raw.precipitation_mm), high_c: num(raw.temp_max_c), low_c: num(raw.temp_min_c),
+        forecast: raw ? { chance_pct: chanceOf(raw), rain_mm: num(raw.precipitation_mm ?? raw.precip_mm), high_c: num(raw.temp_max_c), low_c: num(raw.temp_min_c),
           condition: raw.condition || null, when: raw.when || null } : null,
       };
       if (!row.policy) return { ...row, note: "test purchase, no policy" };
 
       const p = await read("getPolicy", [a.policyId], V2);
       row.date = p.date;
+      row.location = p.location;
       row.warning_hours = Math.round((Date.parse(p.date + "T00:00:00Z") / 1000 - row.asked_at) / 3600);
       if (!p.jobA || !p.jobB) return { ...row, note: "the day has not been settled yet" };
       const [A, B] = await Promise.all([jobRecord(p.jobA), jobRecord(p.jobB)]);

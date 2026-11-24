@@ -1,5 +1,5 @@
 // SecondSky home: everything here is read live from the contracts and from Telegraph's records.
-import { createPublicClient, http, parseAbi, formatUnits, decodeEventLog } from "https://esm.sh/viem@2.21.0";
+import { createPublicClient, http, fallback, parseAbi, formatUnits, decodeEventLog } from "https://esm.sh/viem@2.21.0";
 import { sepolia } from "https://esm.sh/viem@2.21.0/chains";
 
 const USDC = "0xcc194e1a843B658526D0D5C431f670028582Ae17";
@@ -33,6 +33,10 @@ const abi = parseAbi([
   "event WrongMiner(uint256 indexed policyId, uint256 jobId)",
 ]);
 const c = createPublicClient({ chain: sepolia, transport: http("https://ethereum-sepolia-rpc.publicnode.com") });
+// publicnode prunes old logs, so event history comes from endpoints that keep it, in order.
+const history = createPublicClient({ chain: sepolia, transport: fallback([
+  http("https://sepolia.gateway.tenderly.co"), http("https://eth-sepolia.api.onfinality.io/public"), http("https://ethereum-sepolia-rpc.publicnode.com"),
+]) });
 const $ = (id) => document.getElementById(id);
 const usd = (v) => Number(formatUnits(v, 6)).toLocaleString("en-GB", { maximumFractionDigits: 2 });
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
@@ -60,7 +64,8 @@ async function loadContract(k) {
   const ids = Array.from({ length: Number(count) }, (_, i) => BigInt(i + 1));
   const pols = await Promise.all(ids.map((id) => read("getPolicy", [id])));
   const ans = await Promise.all(pols.map((p) => Promise.all([p.jobA ? read("answers", [p.jobA]) : 0n, p.jobB ? read("answers", [p.jobB]) : 0n])));
-  const logs = await c.getLogs({ address: k.addr, fromBlock: k.from, toBlock: "latest" });
+  // Event history only adds transaction links and the job count; the ledger still shows if it cannot be read.
+  const logs = await history.getLogs({ address: k.addr, fromBlock: k.from, toBlock: "latest" }).catch((e) => { console.warn("event history unavailable", e); return []; });
   const ev = {};
   for (const l of logs) {
     let d; try { d = decodeEventLog({ abi, data: l.data, topics: l.topics }); } catch { continue; }
@@ -90,7 +95,7 @@ async function load() {
     else if (r.st === "NotPaid") n.none++;
     else if (r.st === "Disputed") n.dispute++;
     else if (r.st !== "Refunded") n.open++;
-    jobs += (r.e.settle?.length || 0) * 2;
+    jobs += r.e.settle ? r.e.settle.length * 2 : (r.p.jobA ? 2 : 0);
     if (r.a.state === "ok" && r.b.state === "ok") { decided++; if ((r.a.mm >= r.lim) === (r.b.mm >= r.lim)) agreed++; }
   }
   const v2 = all[0];
