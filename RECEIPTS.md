@@ -1,6 +1,6 @@
 # Receipts: first live run (2026-11-21, Ethereum Sepolia)
 
-Testnet, test USDC. Policies bought by our own test wallet (`0xaE11B21cC16223E359acFCde5AD86A9a03286e61`) on days that had already passed, to exercise settlement against real recorded weather. Not customers.
+Testnet, test USDC. Policies bought by our own test wallet (`0xaE11B21cC16223E359acFCde5AD86A9a03286e61`) on days that had already passed, to exercise settlement against real recorded weather.
 
 - SecondSky contract: [`0x75e0129d3c30045d72a90676f24a63e2a1e6752f`](https://sepolia.etherscan.io/address/0x75e0129d3c30045d72a90676f24a63e2a1e6752f)
 - Telegraph Diamond: `0x72a70e949362670Bf8bceAd24eFC5b8f950aa08b`

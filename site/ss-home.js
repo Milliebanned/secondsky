@@ -111,7 +111,7 @@ async function load() {
     num("2", "USDC of evidence", "per settlement: two 1 USDC jobs"),
     num(usd(v2.bal), "USDC in the v2 pool", `${usd(v2.locked)} promised to open policies`),
     num(usd(premiums), "USDC of premiums", "both versions"),
-    num(outside, "Outside buyers", "wallets that are not ours"),
+    num("2", "Named miners", "one per source, checked on every job"),
     num(n.dispute, "Disputed", "only under the old v1 rule"),
   ].join("");
 

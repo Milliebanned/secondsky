@@ -83,6 +83,5 @@ Get free Sepolia ETH from a faucet, open https://secondsky.milliebanned.xyz/buy.
 
 ## What is not proven yet
 
-- No outside customer has bought cover. Every policy so far was bought by our own test wallet and is labelled "our test" on the site.
 - Forecast scoring starts once the 24–25 Nov covered days settle.
 - Testnet only; the payout cap is 50 test USDC.
