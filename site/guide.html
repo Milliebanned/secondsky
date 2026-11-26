@@ -66,13 +66,15 @@ pre .ok{color:#8fd19e}
 .share .btn-line:hover{background:var(--paper-ink);color:var(--paper)}
 
 @media (max-width:900px){
-  .g-cap{grid-template-columns:1fr}
+  .g-cap{grid-template-columns:minmax(0,1fr)}
   .do > li{grid-template-columns:52px minmax(0,1fr)}
   .do .t{grid-column:2;text-align:left;margin-top:10px}
   .do .t b{display:inline;margin-right:8px}
-  .check{grid-template-columns:1fr}
+  .check{grid-template-columns:minmax(0,1fr)}
+  pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}
+  .check > div{min-width:0}
   .break li{grid-template-columns:1fr}
-  .costs{grid-template-columns:1fr}
+  .costs{grid-template-columns:minmax(0,1fr)}
   .costs div + div{padding-left:0;border-left:0}
 }
 </style>

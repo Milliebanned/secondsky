@@ -147,15 +147,13 @@
         sc.ticks.forEach((x, j) => x.classList.toggle("on", j <= b));
         sc.beat.classList.remove("swap"); void sc.beat.offsetWidth; sc.beat.classList.add("swap");
       }
-      // the fold: the leaving scene tips back into depth, the arriving one rises and flattens
-      sc.box.style.transformOrigin = lv > 0 ? "50% 0%" : "50% 100%";
-      sc.box.style.transform = `rotateX(${f2(lv * 18 - en * 14)}deg) scale(${(1 - lv * 0.12 - en * 0.05).toFixed(4)}) translateZ(${f2(-lv * 120)}px)`;
-      sc.shade.style.opacity = (lv * 0.75 + en * 0.55).toFixed(3);
+      // between scenes: a plain scroll. The leaving scene dims, the arriving one brightens. Same on phone and desktop.
+      sc.shade.style.opacity = (lv * 0.7 + en * 0.45).toFixed(3);
       // the layers travel at different speeds: the further away, the slower
       const k = reduce ? 0 : 1, drift = (en - lv) * vh;
       if (sc.L.sky) sc.L.sky.style.transform = `translate3d(${f2(-tx * 10 * k)}px, ${f2(-ty * 6 * k + drift * 0.04 - p * 24)}px, 0) scale(1.04)`;
-      sc.L.word.style.transform = `translate3d(${f2(-tx * 22 * k)}px, ${f2(-ty * 12 * k + drift * 0.2 - p * (sc.stage.clientWidth < sc.stage.clientHeight ? 18 : 70))}px, ${f2(-lv * 380)}px) rotateX(${f2(ty * 2 * k + lv * 10)}deg) rotateY(${f2(tx * -3 * k)}deg)`;
-      const fgT = `translate3d(${f2(-tx * 36 * k)}px, ${f2(-ty * 18 * k + drift * 0.38)}px, ${f2(lv * 160)}px) scale(${(1 + p * 0.1).toFixed(4)})`;
+      sc.L.word.style.transform = `translate3d(${f2(-tx * 22 * k)}px, ${f2(-ty * 12 * k + drift * 0.12 - p * (sc.stage.clientWidth < sc.stage.clientHeight ? 18 : 70))}px, 0) rotateY(${f2(tx * -3 * k)}deg)`;
+      const fgT = `translate3d(${f2(-tx * 36 * k)}px, ${f2(-ty * 18 * k)}px, 0) scale(${(1 + p * 0.06).toFixed(4)})`;
       sc.L.fg.style.transform = fgT;
       // where the photo behind holds the same subject, photo and cut-out move as one, so it never doubles
       if (sc.L.bg) sc.L.bg.style.transform = fgT;

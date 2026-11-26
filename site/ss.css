@@ -10,6 +10,9 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+/* nothing may ever make the page wider than the screen */
+html,body{max-width:100%;overflow-x:clip}
+section,header,footer,main,aside{max-width:100%}
 body{margin:0;background:var(--ink);color:var(--bone);font:400 16px/1.55 var(--f);font-stretch:100%;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 img,video,canvas{display:block;max-width:100%}
 a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
@@ -115,7 +118,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .noscript-hero p{position:absolute;left:var(--gut);bottom:40px;font:800 32px/1.1 var(--f)}
 
 /* ============================================================ WORK */
-.work{position:relative;background:var(--ink);padding:clamp(90px,12vw,170px) var(--gut) clamp(70px,9vw,120px)}
+.work{position:relative;overflow-x:clip;background:var(--ink);padding:clamp(90px,12vw,170px) var(--gut) clamp(70px,9vw,120px)}
 .panels{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,28px);perspective:1200px}
 .panel{position:relative;display:block;text-decoration:none;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1);padding-top:56px}
 .p-frame{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--ink-3)}
@@ -261,6 +264,9 @@ dd{color:rgba(243,239,230,.8);font-size:15px}
   .r-stamp{grid-column:3;grid-row:1}
 }
 @media (max-width:860px){
+  .nav,.nav.solid{background:rgba(12,14,13,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding-top:12px;padding-bottom:12px;border-color:var(--line)}
+  .nav.on-paper{background:rgba(235,229,216,.94)}
+  .nav-cta{padding:10px 14px}
   .nav-links{display:none}
   .nav-cta{margin-left:auto}
   .panels{grid-template-columns:1fr;gap:70px;max-width:480px}
@@ -297,6 +303,24 @@ dd{color:rgba(243,239,230,.8);font-size:15px}
   dt{padding-bottom:0;border-bottom:0}
   .b-text{font-size:18px}
   .hero-cta .btn-text{display:none}
+}
+
+/* phones: the forecast table becomes one card per forecast */
+@media (max-width:620px){
+  .fc-table{overflow:visible}
+  .fc-table table{min-width:0}
+  .fc-table thead{display:none}
+  .fc-table tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 16px;padding:18px 0;border-bottom:1px solid var(--paper-line)}
+  .fc-table td{display:block;padding:0;border:0;min-width:0}
+  .fc-table td[colspan]{grid-column:1/-1}
+  .fc-table td:nth-child(1){font:800 22px/1 var(--f);font-stretch:68%}
+  .fc-table td:nth-child(2){grid-column:2;grid-row:1}
+  .fc-table td:nth-child(n+3)::before{display:block;font:500 10.5px/1.2 var(--m);letter-spacing:.1em;text-transform:uppercase;color:var(--paper-mute);margin-bottom:4px}
+  .fc-table td:nth-child(3)::before{content:"Warning"}
+  .fc-table td:nth-child(4)::before{content:"Forecast"}
+  .fc-table td:nth-child(5)::before{content:"Recorded A / B"}
+  .fc-table td:nth-child(6)::before{content:"Score"}
+  .fc-table td[colspan]::before{content:none}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}

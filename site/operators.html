@@ -77,13 +77,29 @@
   .losers div:nth-child(3),.changes div:nth-child(3){padding-left:0;border-top:1px solid var(--line)}
   .changes div:nth-child(4){border-top:1px solid var(--line)}
   .limits{grid-template-columns:1fr}
-  .ops-cap{grid-template-columns:1fr}
+  .ops-cap{grid-template-columns:minmax(0,1fr)}
+  .ops-cap .eyebrow{white-space:normal;letter-spacing:.18em;font-size:12px}
 }
 @media (max-width:620px){
   .losers,.changes{grid-template-columns:1fr}
   .losers div,.changes div{border-right:0!important;padding-left:0!important;border-top:1px solid var(--line)}
   .today li{grid-template-columns:48px 1fr}
   .today li::before{font-size:30px}
+}
+@media (max-width:620px){
+  .prices{overflow:visible}
+  .prices table{min-width:0}
+  .prices thead{display:none}
+  .prices tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 14px;padding:16px 0;border-bottom:1px solid var(--paper-line)}
+  .prices td{display:block;padding:0;border:0;text-align:left!important;min-width:0}
+  .prices td:first-child,.prices td[colspan]{grid-column:1/-1}
+  .prices td:nth-child(n+2)::before{display:block;font:500 10px/1.2 var(--m);letter-spacing:.1em;text-transform:uppercase;color:var(--paper-mute);margin-bottom:4px}
+  .prices td:nth-child(2)::before{content:"Rain limit"}
+  .prices td:nth-child(3)::before{content:"Chance"}
+  .prices td:nth-child(4)::before{content:"Expected back"}
+  .prices td:nth-child(5)::before{content:"Price"}
+  .prices td:nth-child(6)::before{content:"Of which, evidence"}
+  .prices td[colspan]::before{content:none}
 }
 </style>
 </head>
